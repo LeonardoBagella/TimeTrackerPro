@@ -5,7 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ProjectProvider } from "./context/ProjectContext";
-import LoginPage from "./components/LoginPage";
+import AuthPage from "./components/AuthPage";
 import Dashboard from "./components/Dashboard";
 import { useEffect } from "react";
 
@@ -45,7 +45,7 @@ const AppContent = () => {
       <Dashboard />
     </ProjectProvider>
   ) : (
-    <LoginPage />
+    <AuthPage />
   );
 };
 

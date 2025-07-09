@@ -56,7 +56,7 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange }) => 
     const selectedTaskType = taskTypes.find(type => type.value === taskType);
 
     addTimeEntry({
-      projectId,
+      project_id: projectId,
       hours: Number(hours),
       description: selectedTaskType?.label || 'Development',
       date

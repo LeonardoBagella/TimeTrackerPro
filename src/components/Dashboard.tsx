@@ -10,8 +10,8 @@ import AddProjectDialog from './AddProjectDialog';
 import AddTimeDialog from './AddTimeDialog';
 
 const Dashboard = () => {
-  const { user, logout } = useAuth();
-  const { projects, timeEntries, deleteProject, deleteTimeEntry } = useProjects();
+  const { user, signOut } = useAuth();
+  const { projects, timeEntries, deleteProject, deleteTimeEntry, isLoading } = useProjects();
   const [showAddProject, setShowAddProject] = useState(false);
   const [showAddTime, setShowAddTime] = useState(false);
 
@@ -36,11 +36,11 @@ const Dashboard = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Welcome, {user?.name}</span>
+              <span className="text-sm text-gray-600">Welcome, {user?.email?.split('@')[0]}</span>
               <Button 
                 variant="outline" 
                 size="sm" 
-                onClick={logout}
+                onClick={signOut}
                 className="hover:bg-red-50 hover:border-red-200 hover:text-red-600"
               >
                 <LogOut className="w-4 h-4 mr-2" />
@@ -171,7 +171,7 @@ const Dashboard = () => {
               ) : (
                 <div className="space-y-4">
                   {recentEntries.map((entry) => {
-                    const project = projects.find(p => p.id === entry.projectId);
+                    const project = projects.find(p => p.id === entry.project_id);
                     return (
                       <div key={entry.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
                         <div className="flex items-center space-x-3">
