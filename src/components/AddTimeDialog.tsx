@@ -3,10 +3,13 @@ import React, { useState } from 'react';
 import { useProjects } from '@/context/ProjectContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Check, ChevronsUpDown } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 
 interface AddTimeDialogProps {
@@ -14,10 +17,17 @@ interface AddTimeDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+const taskTypes = [
+  { value: "analysis", label: "Analysis" },
+  { value: "development", label: "Development" },
+  { value: "meeting", label: "Meeting" }
+];
+
 const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange }) => {
   const [projectId, setProjectId] = useState('');
   const [hours, setHours] = useState('');
-  const [description, setDescription] = useState('');
+  const [taskType, setTaskType] = useState('development');
+  const [taskTypeOpen, setTaskTypeOpen] = useState(false);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const { projects, addTimeEntry } = useProjects();
   const { toast } = useToast();
@@ -43,10 +53,12 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange }) => 
       return;
     }
 
+    const selectedTaskType = taskTypes.find(type => type.value === taskType);
+
     addTimeEntry({
       projectId,
       hours: Number(hours),
-      description: description.trim(),
+      description: selectedTaskType?.label || 'Development',
       date
     });
 
@@ -58,7 +70,7 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange }) => 
     // Reset form
     setProjectId('');
     setHours('');
-    setDescription('');
+    setTaskType('development');
     setDate(new Date().toISOString().split('T')[0]);
     onOpenChange(false);
   };
@@ -122,14 +134,50 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange }) => 
           </div>
           
           <div className="space-y-2">
-            <Label htmlFor="description" className="text-sm font-medium">Description</Label>
-            <Textarea
-              id="description"
-              placeholder="What did you work on?"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              className="min-h-[80px] resize-none"
-            />
+            <Label className="text-sm font-medium">Task Type</Label>
+            <Popover open={taskTypeOpen} onOpenChange={setTaskTypeOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={taskTypeOpen}
+                  className="w-full justify-between h-10"
+                >
+                  {taskType
+                    ? taskTypes.find((type) => type.value === taskType)?.label
+                    : "Select task type..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0">
+                <Command>
+                  <CommandInput placeholder="Search task type..." />
+                  <CommandList>
+                    <CommandEmpty>No task type found.</CommandEmpty>
+                    <CommandGroup>
+                      {taskTypes.map((type) => (
+                        <CommandItem
+                          key={type.value}
+                          value={type.value}
+                          onSelect={(currentValue) => {
+                            setTaskType(currentValue === taskType ? "" : currentValue);
+                            setTaskTypeOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              taskType === type.value ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {type.label}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div className="flex justify-end space-x-3 pt-4">
