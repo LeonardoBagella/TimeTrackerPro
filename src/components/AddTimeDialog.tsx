@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
@@ -25,7 +26,7 @@ const taskTypes = [
 
 const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange }) => {
   const [projectId, setProjectId] = useState('');
-  const [hours, setHours] = useState('');
+  const [hours, setHours] = useState('4');
   const [taskType, setTaskType] = useState('development');
   const [taskTypeOpen, setTaskTypeOpen] = useState(false);
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
@@ -69,7 +70,7 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange }) => 
 
     // Reset form
     setProjectId('');
-    setHours('');
+    setHours('4');
     setTaskType('development');
     setDate(new Date().toISOString().split('T')[0]);
     onOpenChange(false);
@@ -108,18 +109,37 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange }) => 
             </Select>
           </div>
           
-          <div className="space-y-2">
-            <Label htmlFor="hours" className="text-sm font-medium">Hours</Label>
-            <Input
-              id="hours"
-              type="number"
-              placeholder="0.5"
-              min="0.1"
-              step="0.1"
-              value={hours}
-              onChange={(e) => setHours(e.target.value)}
-              className="h-10"
-            />
+          <div className="space-y-4">
+            <Label className="text-sm font-medium">Hours: {hours}</Label>
+            <div className="space-y-3">
+              <Select value={hours} onValueChange={setHours}>
+                <SelectTrigger className="h-10">
+                  <SelectValue placeholder="Select hours" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="2">2 hours</SelectItem>
+                  <SelectItem value="4">4 hours</SelectItem>
+                  <SelectItem value="6">6 hours</SelectItem>
+                  <SelectItem value="8">8 hours</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="px-2">
+                <Slider
+                  value={[Number(hours)]}
+                  onValueChange={(value) => setHours(value[0].toString())}
+                  min={2}
+                  max={8}
+                  step={2}
+                  className="w-full"
+                />
+                <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                  <span>2h</span>
+                  <span>4h</span>
+                  <span>6h</span>
+                  <span>8h</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <div className="space-y-2">
