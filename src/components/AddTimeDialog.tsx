@@ -88,6 +88,17 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange }) => 
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
+            <Label htmlFor="date" className="text-sm font-medium">Date</Label>
+            <Input
+              id="date"
+              type="date"
+              value={date}
+              onChange={(e) => setDate(e.target.value)}
+              className="h-10"
+            />
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="project" className="text-sm font-medium">Project</Label>
             <Select value={projectId} onValueChange={setProjectId}>
               <SelectTrigger>
@@ -111,46 +122,22 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange }) => 
           
           <div className="space-y-4">
             <Label className="text-sm font-medium">Hours: {hours}</Label>
-            <div className="space-y-3">
-              <Select value={hours} onValueChange={setHours}>
-                <SelectTrigger className="h-10">
-                  <SelectValue placeholder="Select hours" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="2">2 hours</SelectItem>
-                  <SelectItem value="4">4 hours</SelectItem>
-                  <SelectItem value="6">6 hours</SelectItem>
-                  <SelectItem value="8">8 hours</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="px-2">
-                <Slider
-                  value={[Number(hours)]}
-                  onValueChange={(value) => setHours(value[0].toString())}
-                  min={2}
-                  max={8}
-                  step={2}
-                  className="w-full"
-                />
-                <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                  <span>2h</span>
-                  <span>4h</span>
-                  <span>6h</span>
-                  <span>8h</span>
-                </div>
+            <div className="px-2">
+              <Slider
+                value={[Number(hours)]}
+                onValueChange={(value) => setHours(value[0].toString())}
+                min={2}
+                max={8}
+                step={2}
+                className="w-full"
+              />
+              <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>2h</span>
+                <span>4h</span>
+                <span>6h</span>
+                <span>8h</span>
               </div>
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="date" className="text-sm font-medium">Date</Label>
-            <Input
-              id="date"
-              type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="h-10"
-            />
           </div>
           
           <div className="space-y-2">
