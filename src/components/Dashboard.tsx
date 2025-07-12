@@ -21,16 +21,16 @@ const Dashboard = () => {
     .slice(0, 5);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-blue-50">
+    <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
       {/* Header */}
       <header className="bg-white shadow-sm border-b">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+              <div className="w-8 h-8 bg-gradient-to-br from-primary to-accent rounded-lg flex items-center justify-center">
                 <Clock className="w-5 h-5 text-white" />
               </div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <h1 className="text-xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 TimeTracker Pro
               </h1>
             </div>
@@ -59,7 +59,7 @@ const Dashboard = () => {
               <CardTitle className="text-sm font-medium text-gray-600">Total Projects</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-blue-600">{projects.length}</div>
+              <div className="text-3xl font-bold text-primary">{projects.length}</div>
             </CardContent>
           </Card>
           
@@ -68,7 +68,7 @@ const Dashboard = () => {
               <CardTitle className="text-sm font-medium text-gray-600">Total Hours</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-purple-600">{totalHours.toFixed(1)}</div>
+              <div className="text-3xl font-bold text-accent-foreground">{totalHours.toFixed(1)}</div>
             </CardContent>
           </Card>
           
@@ -77,7 +77,7 @@ const Dashboard = () => {
               <CardTitle className="text-sm font-medium text-gray-600">Time Entries</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-green-600">{timeEntries.length}</div>
+              <div className="text-3xl font-bold text-primary/80">{timeEntries.length}</div>
             </CardContent>
           </Card>
         </div>
@@ -86,7 +86,7 @@ const Dashboard = () => {
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
           <Button 
             onClick={() => setShowAddProject(true)}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+            className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
           >
             <Plus className="w-4 h-4 mr-2" />
             Add Project
@@ -95,7 +95,7 @@ const Dashboard = () => {
           <Button 
             onClick={() => setShowAddTime(true)}
             variant="outline"
-            className="border-blue-200 hover:bg-blue-50 hover:border-blue-300"
+            className="border-border hover:bg-secondary hover:border-primary/20"
             disabled={projects.length === 0}
           >
             <Clock className="w-4 h-4 mr-2" />
@@ -108,7 +108,7 @@ const Dashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Plus className="w-5 h-5 mr-2 text-blue-600" />
+                <Plus className="w-5 h-5 mr-2 text-primary" />
                 Projects
               </CardTitle>
               <CardDescription>Manage your active projects</CardDescription>
@@ -134,7 +134,7 @@ const Dashboard = () => {
                         </div>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <Badge variant="secondary" className="bg-blue-100 text-blue-800">
+                        <Badge variant="secondary" className="bg-primary/10 text-primary">
                           {project.totalHours.toFixed(1)}h
                         </Badge>
                         <Button
@@ -157,7 +157,7 @@ const Dashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
-                <Calendar className="w-5 h-5 mr-2 text-purple-600" />
+                <Calendar className="w-5 h-5 mr-2 text-accent-foreground" />
                 Recent Entries
               </CardTitle>
               <CardDescription>Your latest time logs</CardDescription>
@@ -186,7 +186,7 @@ const Dashboard = () => {
                           </div>
                         </div>
                         <div className="flex items-center space-x-3">
-                          <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                          <Badge variant="secondary" className="bg-accent/20 text-accent-foreground">
                             {entry.hours}h
                           </Badge>
                           <Button

@@ -197,7 +197,7 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange }) => 
             </Button>
             <Button 
               type="submit"
-              className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
+              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
             >
               Log Time
             </Button>

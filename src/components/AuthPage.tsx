@@ -35,15 +35,15 @@ const AuthPage = () => {
 
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-600 via-purple-600 to-blue-800 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-primary via-primary/80 to-primary/60 flex items-center justify-center p-4">
       <div className="w-full max-w-md animate-fade-in">
         <Card className="backdrop-blur-sm bg-white/95 shadow-2xl border-0">
           <CardHeader className="text-center space-y-4">
-            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+            <div className="mx-auto w-16 h-16 bg-gradient-to-br from-primary to-accent rounded-2xl flex items-center justify-center shadow-lg">
               <Clock className="w-8 h-8 text-white" />
             </div>
             <div>
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 TimeTracker Pro
               </CardTitle>
               <CardDescription className="text-gray-600 mt-2">
@@ -62,7 +62,7 @@ const AuthPage = () => {
                   placeholder="Enter your email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className="h-11 border-input focus:border-primary focus:ring-primary"
                   disabled={isLoading}
                 />
               </div>
@@ -75,7 +75,7 @@ const AuthPage = () => {
                   placeholder="Enter your password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="h-11 border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                  className="h-11 border-input focus:border-primary focus:ring-primary"
                   disabled={isLoading}
                 />
               </div>
@@ -89,7 +89,7 @@ const AuthPage = () => {
 
               <Button 
                 type="submit" 
-                className="w-full h-11 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                className="w-full h-11 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-medium shadow-lg hover:shadow-xl transition-all duration-200"
                 disabled={isLoading}
               >
                 {isLoading ? (
