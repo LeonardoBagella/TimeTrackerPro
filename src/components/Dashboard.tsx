@@ -52,6 +52,27 @@ const Dashboard = () => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 mb-8">
+          <Button 
+            onClick={() => setShowAddProject(true)}
+            className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Add Project
+          </Button>
+          
+          <Button 
+            onClick={() => setShowAddTime(true)}
+            variant="outline"
+            className="border-border hover:bg-secondary hover:border-primary/20"
+            disabled={projects.length === 0}
+          >
+            <Clock className="w-4 h-4 mr-2" />
+            Log Time
+          </Button>
+        </div>
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="hover:shadow-lg transition-shadow duration-200">
@@ -80,27 +101,6 @@ const Dashboard = () => {
               <div className="text-3xl font-bold text-primary/80">{timeEntries.length}</div>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <Button 
-            onClick={() => setShowAddProject(true)}
-            className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
-          >
-            <Plus className="w-4 h-4 mr-2" />
-            Add Project
-          </Button>
-          
-          <Button 
-            onClick={() => setShowAddTime(true)}
-            variant="outline"
-            className="border-border hover:bg-secondary hover:border-primary/20"
-            disabled={projects.length === 0}
-          >
-            <Clock className="w-4 h-4 mr-2" />
-            Log Time
-          </Button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
