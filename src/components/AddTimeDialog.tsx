@@ -16,6 +16,7 @@ import { useToast } from '@/hooks/use-toast';
 interface AddTimeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  prefilledDate?: string;
 }
 
 const taskTypes = [
@@ -24,12 +25,12 @@ const taskTypes = [
   { value: "meeting", label: "Meeting" }
 ];
 
-const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange }) => {
+const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefilledDate }) => {
   const [projectId, setProjectId] = useState('');
   const [hours, setHours] = useState('4');
   const [taskType, setTaskType] = useState('development');
   const [taskTypeOpen, setTaskTypeOpen] = useState(false);
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(prefilledDate || new Date().toISOString().split('T')[0]);
   const { projects, addTimeEntry } = useProjects();
   const { toast } = useToast();
 
@@ -72,7 +73,7 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange }) => 
     setProjectId('');
     setHours('4');
     setTaskType('development');
-    setDate(new Date().toISOString().split('T')[0]);
+    setDate(prefilledDate || new Date().toISOString().split('T')[0]);
     onOpenChange(false);
   };
 

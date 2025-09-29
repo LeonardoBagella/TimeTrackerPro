@@ -1,24 +1,33 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import { useProjects } from '@/context/ProjectContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { LogOut, Plus, Clock, Trash2, Calendar } from 'lucide-react';
+import { LogOut, Plus, Clock, Trash2, Calendar, AlertTriangle } from 'lucide-react';
 import AddProjectDialog from './AddProjectDialog';
 import AddTimeDialog from './AddTimeDialog';
+import { calculateMissedEntries } from '@/utils/timeCalculations';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { projects, timeEntries, deleteProject, deleteTimeEntry, isLoading } = useProjects();
   const [showAddProject, setShowAddProject] = useState(false);
   const [showAddTime, setShowAddTime] = useState(false);
+  const [prefilledDate, setPrefilledDate] = useState<string | undefined>(undefined);
 
   const totalHours = projects.reduce((sum, project) => sum + project.totalHours, 0);
   const recentEntries = timeEntries
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
+
+  const missedEntries = useMemo(() => calculateMissedEntries(timeEntries), [timeEntries]);
+
+  const handleMissedEntryClick = (date: string) => {
+    setPrefilledDate(date);
+    setShowAddTime(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
@@ -103,7 +112,7 @@ const Dashboard = () => {
           </Card>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Projects */}
           <Card>
             <CardHeader>
@@ -205,11 +214,65 @@ const Dashboard = () => {
               )}
             </CardContent>
           </Card>
+
+          {/* Possible Missed Entries */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <AlertTriangle className="w-5 h-5 mr-2 text-yellow-600" />
+                Possible Missed Entries
+              </CardTitle>
+              <CardDescription>Working days with less than 8 hours logged</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {missedEntries.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <Clock className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                  <p>Great! No missed entries in the last month.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {missedEntries.slice(0, 10).map((entry) => (
+                    <div 
+                      key={entry.date} 
+                      className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors cursor-pointer"
+                      onClick={() => handleMissedEntryClick(entry.date)}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="w-3 h-3 bg-yellow-500 rounded-full" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">{entry.formattedDate}</h4>
+                          <p className="text-sm text-gray-500">
+                            {entry.totalHours > 0 ? `${entry.totalHours}h logged` : 'No hours logged'}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="bg-yellow-100 text-yellow-700 border-yellow-300">
+                        Missing {8 - entry.totalHours}h
+                      </Badge>
+                    </div>
+                  ))}
+                  {missedEntries.length > 10 && (
+                    <p className="text-sm text-gray-500 text-center pt-2">
+                      And {missedEntries.length - 10} more days...
+                    </p>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
 
       <AddProjectDialog open={showAddProject} onOpenChange={setShowAddProject} />
-      <AddTimeDialog open={showAddTime} onOpenChange={setShowAddTime} />
+      <AddTimeDialog 
+        open={showAddTime} 
+        onOpenChange={(open) => {
+          setShowAddTime(open);
+          if (!open) setPrefilledDate(undefined);
+        }}
+        prefilledDate={prefilledDate}
+      />
     </div>
   );
 };
