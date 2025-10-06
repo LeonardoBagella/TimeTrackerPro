@@ -21,9 +21,10 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from '@/components/ui/pagination';
-import { FileText, Search, ChevronLeft } from 'lucide-react';
+import { FileText, Search, ChevronLeft, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { it } from 'date-fns/locale';
+import * as XLSX from 'xlsx';
 
 interface TimeEntry {
   id: string;
@@ -138,6 +139,39 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
     return filteredEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
   }, [filteredEntries]);
 
+  const handleExportExcel = () => {
+    // Prepare data for export
+    const exportData = filteredEntries.map(entry => ({
+      'Data': format(new Date(entry.date), 'dd/MM/yyyy'),
+      'Progetto': entry.project_name,
+      'Utente': entry.user_name,
+      'Descrizione': entry.description,
+      'Ore': entry.hours,
+    }));
+
+    // Create worksheet
+    const worksheet = XLSX.utils.json_to_sheet(exportData);
+    
+    // Set column widths
+    worksheet['!cols'] = [
+      { wch: 12 }, // Data
+      { wch: 25 }, // Progetto
+      { wch: 20 }, // Utente
+      { wch: 40 }, // Descrizione
+      { wch: 8 },  // Ore
+    ];
+
+    // Create workbook
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, 'Registrazioni');
+
+    // Generate filename with current date
+    const fileName = `report_registrazioni_${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
+
+    // Save file
+    XLSX.writeFile(workbook, fileName);
+  };
+
   if (roleLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background to-secondary flex items-center justify-center">
@@ -202,17 +236,28 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
                   {filteredEntries.length} registrazioni • {totalHours.toFixed(1)} ore totali
                 </CardDescription>
               </div>
-              <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-                <Input
-                  placeholder="Cerca per progetto, utente, descrizione..."
-                  value={searchTerm}
-                  onChange={(e) => {
-                    setSearchTerm(e.target.value);
-                    setCurrentPage(1);
-                  }}
-                  className="pl-10"
-                />
+              <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                <div className="relative w-full sm:w-64">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                  <Input
+                    placeholder="Cerca per progetto, utente, descrizione..."
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setCurrentPage(1);
+                    }}
+                    className="pl-10"
+                  />
+                </div>
+                <Button
+                  onClick={handleExportExcel}
+                  variant="outline"
+                  className="border-primary/20 hover:bg-primary/10"
+                  disabled={filteredEntries.length === 0}
+                >
+                  <Download className="w-4 h-4 mr-2" />
+                  Esporta Excel
+                </Button>
               </div>
             </div>
           </CardHeader>
