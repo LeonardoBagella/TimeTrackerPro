@@ -140,7 +140,7 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange,
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Gestione Progetti</DialogTitle>
           <DialogDescription>
-            Crea un nuovo progetto o unisciti a uno esistente.
+            Puoi unirti ad un progetto a cui non appartieni ancora o se sei un Project Owner puoi aprirne uno nuovo
           </DialogDescription>
         </DialogHeader>
         
