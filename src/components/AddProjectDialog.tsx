@@ -42,10 +42,11 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange 
     
     setLoadingProjects(true);
     try {
-      // Get all projects
+      // Get all projects that are not closed
       const { data: allProjects, error: projectsError } = await supabase
         .from('projects')
         .select('*')
+        .is('closed_at', null)
         .order('name');
 
       if (projectsError) throw projectsError;
@@ -66,8 +67,8 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange 
     } catch (error) {
       console.error('Error fetching available projects:', error);
       toast({
-        title: "Error",
-        description: "Failed to load available projects",
+        title: "Errore",
+        description: "Impossibile caricare i progetti disponibili",
         variant: "destructive"
       });
     } finally {
@@ -86,8 +87,8 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange 
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "Joined project successfully!"
+        title: "Successo",
+        description: "Ti sei unito al progetto!"
       });
 
       onOpenChange(false);
@@ -95,8 +96,8 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange 
     } catch (error) {
       console.error('Error joining project:', error);
       toast({
-        title: "Error",
-        description: "Failed to join project",
+        title: "Errore",
+        description: "Impossibile unirsi al progetto",
         variant: "destructive"
       });
     }

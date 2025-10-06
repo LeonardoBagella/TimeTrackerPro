@@ -129,6 +129,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          closed_at: string | null
           color: string
           created_at: string
           description: string | null
@@ -138,6 +139,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          closed_at?: string | null
           color?: string
           created_at?: string
           description?: string | null
@@ -147,6 +149,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          closed_at?: string | null
           color?: string
           created_at?: string
           description?: string | null
@@ -203,7 +206,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      is_project_member: {
+        Args: { _project_id: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
