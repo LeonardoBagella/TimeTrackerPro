@@ -17,7 +17,8 @@ const Dashboard = () => {
   const [showAddTime, setShowAddTime] = useState(false);
   const [prefilledDate, setPrefilledDate] = useState<string | undefined>(undefined);
 
-  const totalHours = projects.reduce((sum, project) => sum + project.totalHours, 0);
+  const totalUserHours = projects.reduce((sum, project) => sum + (project.userHours || 0), 0);
+  const totalProjectHours = projects.reduce((sum, project) => sum + (project.totalHours || 0), 0);
   const recentEntries = timeEntries
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
@@ -95,10 +96,13 @@ const Dashboard = () => {
           
           <Card className="hover:shadow-lg transition-shadow duration-200">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Hours</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">Ore Totali</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-accent-foreground">{totalHours.toFixed(1)}</div>
+              <div className="text-3xl font-bold text-accent-foreground">
+                {totalUserHours.toFixed(1)} / {totalProjectHours.toFixed(1)}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Tue ore / Ore totali progetto</p>
             </CardContent>
           </Card>
           
@@ -143,9 +147,12 @@ const Dashboard = () => {
                         </div>
                       </div>
                       <div className="flex items-center space-x-3">
-                        <Badge variant="secondary" className="bg-primary/10 text-primary">
-                          {project.totalHours.toFixed(1)}h
-                        </Badge>
+                        <div className="flex flex-col">
+                          <Badge variant="secondary" className="bg-primary/10 text-primary mb-1">
+                            {(project.userHours || 0).toFixed(1)}h / {(project.totalHours || 0).toFixed(1)}h
+                          </Badge>
+                          <span className="text-xs text-gray-500">Tue ore / Totali</span>
+                        </div>
                         <Button
                           variant="ghost"
                           size="sm"

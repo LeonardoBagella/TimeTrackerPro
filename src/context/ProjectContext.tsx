@@ -8,6 +8,7 @@ export interface Project {
   description: string;
   color: string;
   totalHours?: number;
+  userHours?: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -96,16 +97,23 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
       // Calculate total hours for each project
       const projectsWithHours = await Promise.all(
         (data || []).map(async (project: any) => {
-          const { data: entries } = await (supabase as any)
+          // Get all time entries for the project (all users)
+          const { data: allEntries } = await (supabase as any)
             .from('time_entries')
-            .select('hours')
+            .select('hours, user_id')
             .eq('project_id', project.id);
           
-          const totalHours = entries?.reduce((sum: number, entry: any) => sum + Number(entry.hours), 0) || 0;
+          const totalHours = allEntries?.reduce((sum: number, entry: any) => sum + Number(entry.hours), 0) || 0;
+          
+          // Get user's time entries for the project
+          const userHours = allEntries
+            ?.filter((entry: any) => entry.user_id === user.id)
+            .reduce((sum: number, entry: any) => sum + Number(entry.hours), 0) || 0;
           
           return {
             ...project,
-            totalHours
+            totalHours,
+            userHours
           };
         })
       );
