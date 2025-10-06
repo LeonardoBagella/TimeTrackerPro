@@ -200,14 +200,9 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
         return;
       }
       
-      setTimeEntries(prev => [data, ...prev]);
-      
-      // Update project total hours
-      setProjects(prev => prev.map(project => 
-        project.id === entryData.project_id
-          ? { ...project, totalHours: (project.totalHours || 0) + Number(entryData.hours) }
-          : project
-      ));
+      // Refresh all data to update totals
+      await fetchProjects();
+      await fetchTimeEntries();
     } catch (error) {
       console.error('Error adding time entry:', error);
     }
