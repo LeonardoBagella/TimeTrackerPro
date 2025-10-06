@@ -9,6 +9,7 @@ import { LogOut, Plus, Clock, Trash2, Calendar, AlertTriangle } from 'lucide-rea
 import AddProjectDialog from './AddProjectDialog';
 import AddTimeDialog from './AddTimeDialog';
 import { calculateMissedEntries } from '@/utils/timeCalculations';
+import { startOfMonth, endOfMonth, isWithinInterval, parseISO } from 'date-fns';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -17,8 +18,26 @@ const Dashboard = () => {
   const [showAddTime, setShowAddTime] = useState(false);
   const [prefilledDate, setPrefilledDate] = useState<string | undefined>(undefined);
 
-  const totalUserHours = projects.reduce((sum, project) => sum + (project.userHours || 0), 0);
-  const totalProjectHours = projects.reduce((sum, project) => sum + (project.totalHours || 0), 0);
+  // Filter time entries for current month
+  const currentMonthStart = startOfMonth(new Date());
+  const currentMonthEnd = endOfMonth(new Date());
+  
+  const currentMonthEntries = useMemo(() => {
+    return timeEntries.filter(entry => {
+      const entryDate = parseISO(entry.date);
+      return isWithinInterval(entryDate, { start: currentMonthStart, end: currentMonthEnd });
+    });
+  }, [timeEntries, currentMonthStart, currentMonthEnd]);
+
+  // Calculate hours for current month only
+  const totalUserHours = useMemo(() => {
+    return currentMonthEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
+  }, [currentMonthEntries]);
+
+  const totalProjectHours = useMemo(() => {
+    return projects.reduce((sum, project) => sum + (project.totalHours || 0), 0);
+  }, [projects]);
+
   const recentEntries = timeEntries
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
@@ -96,13 +115,13 @@ const Dashboard = () => {
           
           <Card className="hover:shadow-lg transition-shadow duration-200">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">Ore Totali</CardTitle>
+              <CardTitle className="text-sm font-medium text-gray-600">Ore Mese Corrente</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-accent-foreground">
                 {totalUserHours.toFixed(1)} / {totalProjectHours.toFixed(1)}
               </div>
-              <p className="text-xs text-gray-500 mt-1">Tue ore / Ore totali progetto</p>
+              <p className="text-xs text-gray-500 mt-1">Tue ore / Ore totali (questo mese)</p>
             </CardContent>
           </Card>
           

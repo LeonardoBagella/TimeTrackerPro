@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
+import { startOfMonth, endOfMonth } from 'date-fns';
 
 export interface Project {
   id: string;
@@ -94,18 +95,23 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
         return;
       }
 
-      // Calculate total hours for each project
+      // Calculate total hours for each project (current month only)
+      const currentMonthStart = startOfMonth(new Date()).toISOString();
+      const currentMonthEnd = endOfMonth(new Date()).toISOString();
+      
       const projectsWithHours = await Promise.all(
         (data || []).map(async (project: any) => {
-          // Get all time entries for the project (all users)
+          // Get time entries for current month only (all users)
           const { data: allEntries } = await (supabase as any)
             .from('time_entries')
             .select('hours, user_id')
-            .eq('project_id', project.id);
+            .eq('project_id', project.id)
+            .gte('date', currentMonthStart)
+            .lte('date', currentMonthEnd);
           
           const totalHours = allEntries?.reduce((sum: number, entry: any) => sum + Number(entry.hours), 0) || 0;
           
-          // Get user's time entries for the project
+          // Get user's time entries for the project (current month)
           const userHours = allEntries
             ?.filter((entry: any) => entry.user_id === user.id)
             .reduce((sum: number, entry: any) => sum + Number(entry.hours), 0) || 0;
