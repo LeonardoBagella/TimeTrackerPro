@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { LogOut, Plus, Clock, Trash2, Calendar, AlertTriangle } from 'lucide-react';
+import { LogOut, Plus, Clock, Trash2, Calendar, AlertTriangle, TrendingUp } from 'lucide-react';
 import AddProjectDialog from './AddProjectDialog';
 import AddTimeDialog from './AddTimeDialog';
 import { calculateMissedEntries } from '@/utils/timeCalculations';
@@ -245,7 +245,7 @@ const Dashboard = () => {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center">
-                  <Plus className="w-5 h-5 mr-2 text-primary" />
+                  <TrendingUp className="w-5 h-5 mr-2 text-primary" />
                   Progetti
                 </div>
                 <Badge variant="secondary" className="bg-primary/10 text-primary">
