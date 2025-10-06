@@ -119,9 +119,9 @@ const Dashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-3xl font-bold text-accent-foreground">
-                {totalUserHours.toFixed(1)} / {totalProjectHours.toFixed(1)}
+                {totalUserHours.toFixed(1)}
               </div>
-              <p className="text-xs text-gray-500 mt-1">Tue ore / Ore totali (questo mese)</p>
+              <p className="text-xs text-gray-500 mt-1">Ore rendicontate questo mese</p>
             </CardContent>
           </Card>
           
