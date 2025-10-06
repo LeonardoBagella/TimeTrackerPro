@@ -117,15 +117,13 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          {isProjectOwner && (
-            <Button 
-              onClick={() => setShowAddProject(true)}
-              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
-            >
-              <Plus className="w-4 h-4 mr-2" />
-              Aggiungi Progetto
-            </Button>
-          )}
+          <Button 
+            onClick={() => setShowAddProject(true)}
+            className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
+          >
+            <Plus className="w-4 h-4 mr-2" />
+            Aggiungi Progetto
+          </Button>
           
           <Button 
             onClick={() => setShowAddTime(true)}
@@ -345,7 +343,11 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <AddProjectDialog open={showAddProject} onOpenChange={setShowAddProject} />
+      <AddProjectDialog 
+        open={showAddProject} 
+        onOpenChange={setShowAddProject}
+        isProjectOwner={isProjectOwner}
+      />
       <AddTimeDialog 
         open={showAddTime} 
         onOpenChange={(open) => {

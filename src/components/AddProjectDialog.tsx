@@ -14,6 +14,7 @@ import { useAuth } from '@/context/AuthContext';
 interface AddProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  isProjectOwner: boolean;
 }
 
 const colors = [
@@ -21,7 +22,7 @@ const colors = [
   '#f59e0b', '#ec4899', '#6366f1', '#84cc16'
 ];
 
-const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange }) => {
+const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange, isProjectOwner }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [selectedColor, setSelectedColor] = useState(colors[0]);
@@ -143,13 +144,16 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange 
           </DialogDescription>
         </DialogHeader>
         
-        <Tabs defaultValue="create" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="create">Crea Nuovo</TabsTrigger>
-            <TabsTrigger value="join">Unisciti</TabsTrigger>
-          </TabsList>
+        <Tabs defaultValue={isProjectOwner ? "create" : "join"} className="w-full">
+          {isProjectOwner && (
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="create">Crea Nuovo</TabsTrigger>
+              <TabsTrigger value="join">Unisciti</TabsTrigger>
+            </TabsList>
+          )}
           
-          <TabsContent value="create" className="mt-4">
+          {isProjectOwner && (
+            <TabsContent value="create" className="mt-4">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-sm font-medium">Nome Progetto</Label>
@@ -209,8 +213,9 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange 
               </div>
             </form>
           </TabsContent>
+          )}
           
-          <TabsContent value="join" className="mt-4">
+          <TabsContent value="join" className={isProjectOwner ? "mt-4" : "mt-0"}>
             <div className="space-y-4">
               {loadingProjects ? (
                 <div className="text-center py-8 text-muted-foreground">
