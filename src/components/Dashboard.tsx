@@ -97,7 +97,7 @@ const Dashboard = () => {
             </div>
             
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Welcome, {user?.email?.split('@')[0]}</span>
+              <span className="text-sm text-gray-600">Benvenuto, {user?.email?.split('@')[0]}</span>
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -105,7 +105,7 @@ const Dashboard = () => {
                 className="hover:bg-red-50 hover:border-red-200 hover:text-red-600"
               >
                 <LogOut className="w-4 h-4 mr-2" />
-                Logout
+                Esci
               </Button>
             </div>
           </div>
@@ -120,7 +120,7 @@ const Dashboard = () => {
             className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
           >
             <Plus className="w-4 h-4 mr-2" />
-            Add Project
+            Aggiungi Progetto
           </Button>
           
           <Button 
@@ -130,7 +130,7 @@ const Dashboard = () => {
             disabled={projects.length === 0}
           >
             <Clock className="w-4 h-4 mr-2" />
-            Log Time
+            Registra Ore
           </Button>
         </div>
 
@@ -200,7 +200,7 @@ const Dashboard = () => {
               {projects.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <Plus className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>No projects yet. Add your first project to get started!</p>
+                  <p>Nessun progetto ancora. Aggiungi il tuo primo progetto per iniziare!</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -244,15 +244,15 @@ const Dashboard = () => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Calendar className="w-5 h-5 mr-2 text-accent-foreground" />
-                Recent Entries
+                Voci Recenti
               </CardTitle>
-              <CardDescription>Your latest time logs</CardDescription>
+              <CardDescription>I tuoi ultimi log temporali</CardDescription>
             </CardHeader>
             <CardContent>
               {recentEntries.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <Clock className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>No time entries yet. Start logging your hours!</p>
+                  <p>Nessuna voce temporale ancora. Inizia a registrare le tue ore!</p>
                 </div>
               ) : (
                 <div className="space-y-4">
@@ -297,15 +297,15 @@ const Dashboard = () => {
             <CardHeader>
               <CardTitle className="flex items-center">
                 <AlertTriangle className="w-5 h-5 mr-2 text-yellow-600" />
-                Possible Missed Entries
+                Possibili Voci Mancanti
               </CardTitle>
-              <CardDescription>Working days with less than 8 hours logged</CardDescription>
+              <CardDescription>Giorni lavorativi con meno di 8 ore registrate</CardDescription>
             </CardHeader>
             <CardContent>
               {missedEntries.length === 0 ? (
                 <div className="text-center py-8 text-gray-500">
                   <Clock className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>Great! No missed entries in the last month.</p>
+                  <p>Ottimo! Nessuna voce mancante nell'ultimo mese.</p>
                 </div>
               ) : (
                 <div className="space-y-3">
@@ -320,18 +320,18 @@ const Dashboard = () => {
                         <div>
                           <h4 className="font-medium text-gray-900">{entry.formattedDate}</h4>
                           <p className="text-sm text-gray-500">
-                            {entry.totalHours > 0 ? `${entry.totalHours}h logged` : 'No hours logged'}
+                            {entry.totalHours > 0 ? `${entry.totalHours}h registrate` : 'Nessuna ora registrata'}
                           </p>
                         </div>
                       </div>
                       <Badge variant="outline" className="bg-yellow-100 text-yellow-700 border-yellow-300">
-                        Missing {8 - entry.totalHours}h
+                        Mancano {8 - entry.totalHours}h
                       </Badge>
                     </div>
                   ))}
                   {missedEntries.length > 10 && (
                     <p className="text-sm text-gray-500 text-center pt-2">
-                      And {missedEntries.length - 10} more days...
+                      E altri {missedEntries.length - 10} giorni...
                     </p>
                   )}
                 </div>
