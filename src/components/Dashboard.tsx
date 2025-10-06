@@ -9,7 +9,8 @@ import { LogOut, Plus, Clock, Trash2, Calendar, AlertTriangle } from 'lucide-rea
 import AddProjectDialog from './AddProjectDialog';
 import AddTimeDialog from './AddTimeDialog';
 import { calculateMissedEntries } from '@/utils/timeCalculations';
-import { startOfMonth, endOfMonth, isWithinInterval, parseISO } from 'date-fns';
+import { startOfMonth, endOfMonth, isWithinInterval, parseISO, eachDayOfInterval, isWeekend, isBefore, startOfDay } from 'date-fns';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -41,6 +42,26 @@ const Dashboard = () => {
   const recentEntries = timeEntries
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
+
+  // Calculate working days for current month (up to today)
+  const workingDaysData = useMemo(() => {
+    const today = startOfDay(new Date());
+    const monthEnd = isBefore(today, currentMonthEnd) ? today : currentMonthEnd;
+    
+    const allDaysInPeriod = eachDayOfInterval({
+      start: currentMonthStart,
+      end: monthEnd
+    });
+    
+    const workingDays = allDaysInPeriod.filter(day => !isWeekend(day));
+    const totalExpectedHours = workingDays.length * 8;
+    const remainingHours = Math.max(0, totalExpectedHours - totalUserHours);
+    
+    return [
+      { name: 'Ore Rendicontate', value: totalUserHours, color: '#10b981' },
+      { name: 'Ore Mancanti', value: remainingHours, color: '#e5e7eb' }
+    ];
+  }, [currentMonthStart, currentMonthEnd, totalUserHours]);
 
   const missedEntries = useMemo(() => calculateMissedEntries(timeEntries), [timeEntries]);
 
@@ -102,8 +123,8 @@ const Dashboard = () => {
           </Button>
         </div>
 
-        {/* Stats Card */}
-        <div className="grid grid-cols-1 gap-6 mb-8">
+        {/* Stats Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card className="hover:shadow-lg transition-shadow duration-200">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-gray-600">Ore Mese Corrente</CardTitle>
@@ -113,6 +134,38 @@ const Dashboard = () => {
                 {totalUserHours.toFixed(1)}
               </div>
               <p className="text-xs text-gray-500 mt-1">Ore rendicontate questo mese</p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow duration-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600">Progresso Mensile</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={workingDaysData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="value"
+                    >
+                      {workingDaysData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip formatter={(value: number) => `${value.toFixed(1)}h`} />
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                Su {workingDaysData[0].value + workingDaysData[1].value}h previste (giorni lavorativi)
+              </p>
             </CardContent>
           </Card>
         </div>
