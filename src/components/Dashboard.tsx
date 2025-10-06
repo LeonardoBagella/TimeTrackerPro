@@ -5,6 +5,8 @@ import { useProjects } from '@/context/ProjectContext';
 import { useUserRole } from '@/hooks/useUserRole';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { LogOut, Plus, Clock, Trash2, Calendar, AlertTriangle } from 'lucide-react';
 import AddProjectDialog from './AddProjectDialog';
@@ -20,6 +22,7 @@ const Dashboard = () => {
   const [showAddProject, setShowAddProject] = useState(false);
   const [showAddTime, setShowAddTime] = useState(false);
   const [prefilledDate, setPrefilledDate] = useState<string | undefined>(undefined);
+  const [showPreviousMonth, setShowPreviousMonth] = useState(false);
 
   // Filter time entries for current month
   const currentMonthStart = startOfMonth(new Date());
@@ -172,7 +175,7 @@ const Dashboard = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <Card className="hover:shadow-lg transition-shadow duration-200">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-gray-600">Ore Mese Corrente</CardTitle>
@@ -187,14 +190,28 @@ const Dashboard = () => {
 
           <Card className="hover:shadow-lg transition-shadow duration-200">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">Progresso Mensile</CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-medium text-gray-600">
+                  {showPreviousMonth ? 'Mese Precedente' : 'Progresso Mensile'}
+                </CardTitle>
+                <div className="flex items-center space-x-2">
+                  <Label htmlFor="month-toggle" className="text-xs text-gray-500">
+                    {showPreviousMonth ? 'Precedente' : 'Attuale'}
+                  </Label>
+                  <Switch
+                    id="month-toggle"
+                    checked={showPreviousMonth}
+                    onCheckedChange={setShowPreviousMonth}
+                  />
+                </div>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="h-[200px]">
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={workingDaysData.chartData}
+                      data={showPreviousMonth ? previousMonthData.chartData : workingDaysData.chartData}
                       cx="50%"
                       cy="50%"
                       innerRadius={50}
@@ -204,7 +221,7 @@ const Dashboard = () => {
                       label={(entry) => `${entry.value.toFixed(1)}h`}
                       labelLine={false}
                     >
-                      {workingDaysData.chartData.map((entry, index) => (
+                      {(showPreviousMonth ? previousMonthData.chartData : workingDaysData.chartData).map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -213,40 +230,10 @@ const Dashboard = () => {
                 </ResponsiveContainer>
               </div>
               <p className="text-xs text-gray-500 mt-2 text-center">
-                {workingDaysData.workingDaysCount} giorni lavorativi × 8h = {workingDaysData.totalExpectedHours}h previste
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow duration-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">Mese Precedente</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="h-[200px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={previousMonthData.chartData}
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={50}
-                      outerRadius={80}
-                      paddingAngle={2}
-                      dataKey="value"
-                      label={(entry) => `${entry.value.toFixed(1)}h`}
-                      labelLine={false}
-                    >
-                      {previousMonthData.chartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-              <p className="text-xs text-gray-500 mt-2 text-center">
-                {previousMonthData.workingDaysCount} giorni lavorativi × 8h = {previousMonthData.totalExpectedHours}h previste
+                {showPreviousMonth 
+                  ? `${previousMonthData.workingDaysCount} giorni lavorativi × 8h = ${previousMonthData.totalExpectedHours}h previste`
+                  : `${workingDaysData.workingDaysCount} giorni lavorativi × 8h = ${workingDaysData.totalExpectedHours}h previste`
+                }
               </p>
             </CardContent>
           </Card>
