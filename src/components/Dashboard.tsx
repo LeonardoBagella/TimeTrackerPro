@@ -102,17 +102,8 @@ const Dashboard = () => {
           </Button>
         </div>
 
-        {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <Card className="hover:shadow-lg transition-shadow duration-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">Total Projects</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-primary">{projects.length}</div>
-            </CardContent>
-          </Card>
-          
+        {/* Stats Card */}
+        <div className="grid grid-cols-1 gap-6 mb-8">
           <Card className="hover:shadow-lg transition-shadow duration-200">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-gray-600">Ore Mese Corrente</CardTitle>
@@ -124,26 +115,22 @@ const Dashboard = () => {
               <p className="text-xs text-gray-500 mt-1">Ore rendicontate questo mese</p>
             </CardContent>
           </Card>
-          
-          <Card className="hover:shadow-lg transition-shadow duration-200">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-gray-600">Time Entries</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold text-primary/80">{timeEntries.length}</div>
-            </CardContent>
-          </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Projects */}
           <Card>
             <CardHeader>
-              <CardTitle className="flex items-center">
-                <Plus className="w-5 h-5 mr-2 text-primary" />
-                Projects
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Plus className="w-5 h-5 mr-2 text-primary" />
+                  Progetti
+                </div>
+                <Badge variant="secondary" className="bg-primary/10 text-primary">
+                  {projects.length} aperti
+                </Badge>
               </CardTitle>
-              <CardDescription>Manage your active projects</CardDescription>
+              <CardDescription>Gestisci i tuoi progetti attivi</CardDescription>
             </CardHeader>
             <CardContent>
               {projects.length === 0 ? (
