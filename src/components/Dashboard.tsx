@@ -8,9 +8,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { LogOut, Plus, Clock, Trash2, Calendar, AlertTriangle, TrendingUp } from 'lucide-react';
+import { LogOut, Plus, Clock, Trash2, Calendar, AlertTriangle, TrendingUp, FileText } from 'lucide-react';
 import AddProjectDialog from './AddProjectDialog';
 import AddTimeDialog from './AddTimeDialog';
+import AdminReports from './AdminReports';
 import { calculateMissedEntries } from '@/utils/timeCalculations';
 import { startOfMonth, endOfMonth, isWithinInterval, parseISO, eachDayOfInterval, isWeekend, subMonths } from 'date-fns';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
@@ -18,11 +19,12 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recha
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const { projects, timeEntries, deleteProject, deleteTimeEntry, isLoading } = useProjects();
-  const { isProjectOwner } = useUserRole();
+  const { isProjectOwner, isAdmin } = useUserRole();
   const [showAddProject, setShowAddProject] = useState(false);
   const [showAddTime, setShowAddTime] = useState(false);
   const [prefilledDate, setPrefilledDate] = useState<string | undefined>(undefined);
   const [showPreviousMonth, setShowPreviousMonth] = useState(false);
+  const [showAdminReports, setShowAdminReports] = useState(false);
 
   // Filter time entries for current month
   const currentMonthStart = startOfMonth(new Date());
@@ -121,6 +123,10 @@ const Dashboard = () => {
     setShowAddTime(true);
   };
 
+  if (showAdminReports) {
+    return <AdminReports onBack={() => setShowAdminReports(false)} />;
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background to-secondary">
       {/* Header */}
@@ -172,6 +178,17 @@ const Dashboard = () => {
             <Clock className="w-4 h-4 mr-2" />
             Registra Ore
           </Button>
+
+          {isAdmin && (
+            <Button 
+              onClick={() => setShowAdminReports(true)}
+              variant="outline"
+              className="border-border hover:bg-secondary hover:border-primary/20"
+            >
+              <FileText className="w-4 h-4 mr-2" />
+              Report Admin
+            </Button>
+          )}
         </div>
 
         {/* Stats Cards */}
