@@ -45,7 +45,7 @@ const Dashboard = () => {
 
   // Calculate working days for current month (up to today)
   const workingDaysData = useMemo(() => {
-    const today = startOfDay(new Date());
+    const today = new Date();
     const monthEnd = isBefore(today, currentMonthEnd) ? today : currentMonthEnd;
     
     const allDaysInPeriod = eachDayOfInterval({
@@ -57,10 +57,24 @@ const Dashboard = () => {
     const totalExpectedHours = workingDays.length * 8;
     const remainingHours = Math.max(0, totalExpectedHours - totalUserHours);
     
-    return [
-      { name: 'Ore Rendicontate', value: totalUserHours, color: '#10b981' },
-      { name: 'Ore Mancanti', value: remainingHours, color: '#e5e7eb' }
-    ];
+    console.log('Calcolo giorni lavorativi:', {
+      inizio: currentMonthStart,
+      fine: monthEnd,
+      giorniTotali: allDaysInPeriod.length,
+      giorniLavorativi: workingDays.length,
+      oreAttese: totalExpectedHours,
+      oreRendicontate: totalUserHours,
+      oreMancanti: remainingHours
+    });
+    
+    return {
+      chartData: [
+        { name: 'Ore Rendicontate', value: totalUserHours, color: '#10b981' },
+        { name: 'Ore Mancanti', value: remainingHours, color: '#e5e7eb' }
+      ],
+      workingDaysCount: workingDays.length,
+      totalExpectedHours
+    };
   }, [currentMonthStart, currentMonthEnd, totalUserHours]);
 
   const missedEntries = useMemo(() => calculateMissedEntries(timeEntries), [timeEntries]);
@@ -146,7 +160,7 @@ const Dashboard = () => {
                 <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                     <Pie
-                      data={workingDaysData}
+                      data={workingDaysData.chartData}
                       cx="50%"
                       cy="50%"
                       innerRadius={50}
@@ -154,7 +168,7 @@ const Dashboard = () => {
                       paddingAngle={2}
                       dataKey="value"
                     >
-                      {workingDaysData.map((entry, index) => (
+                      {workingDaysData.chartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
@@ -164,7 +178,7 @@ const Dashboard = () => {
                 </ResponsiveContainer>
               </div>
               <p className="text-xs text-gray-500 mt-2 text-center">
-                Su {workingDaysData[0].value + workingDaysData[1].value}h previste (giorni lavorativi)
+                {workingDaysData.workingDaysCount} giorni lavorativi × 8h = {workingDaysData.totalExpectedHours}h previste
               </p>
             </CardContent>
           </Card>
