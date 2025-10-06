@@ -10,7 +10,7 @@ import { LogOut, Plus, Clock, Trash2, Calendar, AlertTriangle } from 'lucide-rea
 import AddProjectDialog from './AddProjectDialog';
 import AddTimeDialog from './AddTimeDialog';
 import { calculateMissedEntries } from '@/utils/timeCalculations';
-import { startOfMonth, endOfMonth, isWithinInterval, parseISO, eachDayOfInterval, isWeekend } from 'date-fns';
+import { startOfMonth, endOfMonth, isWithinInterval, parseISO, eachDayOfInterval, isWeekend, subMonths } from 'date-fns';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 const Dashboard = () => {
@@ -69,12 +69,47 @@ const Dashboard = () => {
     return {
       chartData: [
         { name: 'Ore Rendicontate', value: totalUserHours, color: '#10b981' },
-        { name: 'Ore Mancanti', value: remainingHours, color: '#e5e7eb' }
+        { name: 'Ore Mancanti', value: remainingHours, color: '#9ca3af' }
       ],
       workingDaysCount: workingDays.length,
       totalExpectedHours
     };
   }, [currentMonthStart, currentMonthEnd, totalUserHours]);
+
+  // Calculate working days for previous month
+  const previousMonthStart = startOfMonth(subMonths(new Date(), 1));
+  const previousMonthEnd = endOfMonth(subMonths(new Date(), 1));
+  
+  const previousMonthEntries = useMemo(() => {
+    return timeEntries.filter(entry => {
+      const entryDate = parseISO(entry.date);
+      return isWithinInterval(entryDate, { start: previousMonthStart, end: previousMonthEnd });
+    });
+  }, [timeEntries, previousMonthStart, previousMonthEnd]);
+
+  const totalPreviousMonthHours = useMemo(() => {
+    return previousMonthEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
+  }, [previousMonthEntries]);
+
+  const previousMonthData = useMemo(() => {
+    const allDaysInMonth = eachDayOfInterval({
+      start: previousMonthStart,
+      end: previousMonthEnd
+    });
+    
+    const workingDays = allDaysInMonth.filter(day => !isWeekend(day));
+    const totalExpectedHours = workingDays.length * 8;
+    const remainingHours = Math.max(0, totalExpectedHours - totalPreviousMonthHours);
+    
+    return {
+      chartData: [
+        { name: 'Ore Rendicontate', value: totalPreviousMonthHours, color: '#10b981' },
+        { name: 'Ore Mancanti', value: remainingHours, color: '#9ca3af' }
+      ],
+      workingDaysCount: workingDays.length,
+      totalExpectedHours
+    };
+  }, [previousMonthStart, previousMonthEnd, totalPreviousMonthHours]);
 
   const missedEntries = useMemo(() => calculateMissedEntries(timeEntries), [timeEntries]);
 
@@ -137,7 +172,7 @@ const Dashboard = () => {
         </div>
 
         {/* Stats Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <Card className="hover:shadow-lg transition-shadow duration-200">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-gray-600">Ore Mese Corrente</CardTitle>
@@ -179,6 +214,39 @@ const Dashboard = () => {
               </div>
               <p className="text-xs text-gray-500 mt-2 text-center">
                 {workingDaysData.workingDaysCount} giorni lavorativi × 8h = {workingDaysData.totalExpectedHours}h previste
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow duration-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium text-gray-600">Mese Precedente</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-[200px]">
+                <ResponsiveContainer width="100%" height="100%">
+                  <PieChart>
+                    <Pie
+                      data={previousMonthData.chartData}
+                      cx="50%"
+                      cy="50%"
+                      innerRadius={50}
+                      outerRadius={80}
+                      paddingAngle={2}
+                      dataKey="value"
+                      label={(entry) => `${entry.value.toFixed(1)}h`}
+                      labelLine={false}
+                    >
+                      {previousMonthData.chartData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Legend />
+                  </PieChart>
+                </ResponsiveContainer>
+              </div>
+              <p className="text-xs text-gray-500 mt-2 text-center">
+                {previousMonthData.workingDaysCount} giorni lavorativi × 8h = {previousMonthData.totalExpectedHours}h previste
               </p>
             </CardContent>
           </Card>
