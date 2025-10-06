@@ -22,7 +22,7 @@ import {
   PaginationPrevious,
 } from '@/components/ui/pagination';
 import { FileText, Search, ChevronLeft, Download } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, subMonths, isAfter } from 'date-fns';
 import { it } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
 
@@ -71,10 +71,15 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
   const fetchAllData = async () => {
     setIsLoading(true);
     try {
-      // Fetch time entries
+      // Calculate date 3 months ago
+      const threeMonthsAgo = subMonths(new Date(), 3);
+      const threeMonthsAgoDate = format(threeMonthsAgo, 'yyyy-MM-dd');
+
+      // Fetch time entries from last 3 months
       const { data: entries, error: entriesError } = await supabase
         .from('time_entries')
         .select('*')
+        .gte('date', threeMonthsAgoDate)
         .order('date', { ascending: false });
 
       if (entriesError) throw entriesError;
@@ -230,7 +235,7 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
               <div>
                 <CardTitle className="flex items-center">
                   <FileText className="w-5 h-5 mr-2 text-primary" />
-                  Tutte le Registrazioni
+                  Tutte le Registrazioni degli ultimi 3 mesi
                 </CardTitle>
                 <CardDescription>
                   {filteredEntries.length} registrazioni • {totalHours.toFixed(1)} ore totali
