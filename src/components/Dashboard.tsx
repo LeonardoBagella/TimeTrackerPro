@@ -9,7 +9,7 @@ import { LogOut, Plus, Clock, Trash2, Calendar, AlertTriangle } from 'lucide-rea
 import AddProjectDialog from './AddProjectDialog';
 import AddTimeDialog from './AddTimeDialog';
 import { calculateMissedEntries } from '@/utils/timeCalculations';
-import { startOfMonth, endOfMonth, isWithinInterval, parseISO, eachDayOfInterval, isWeekend, isBefore, startOfDay } from 'date-fns';
+import { startOfMonth, endOfMonth, isWithinInterval, parseISO, eachDayOfInterval, isWeekend } from 'date-fns';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
 
 const Dashboard = () => {
@@ -43,24 +43,21 @@ const Dashboard = () => {
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
     .slice(0, 5);
 
-  // Calculate working days for current month (up to today)
+  // Calculate working days for current month (entire month)
   const workingDaysData = useMemo(() => {
-    const today = new Date();
-    const monthEnd = isBefore(today, currentMonthEnd) ? today : currentMonthEnd;
-    
-    const allDaysInPeriod = eachDayOfInterval({
+    const allDaysInMonth = eachDayOfInterval({
       start: currentMonthStart,
-      end: monthEnd
+      end: currentMonthEnd
     });
     
-    const workingDays = allDaysInPeriod.filter(day => !isWeekend(day));
+    const workingDays = allDaysInMonth.filter(day => !isWeekend(day));
     const totalExpectedHours = workingDays.length * 8;
     const remainingHours = Math.max(0, totalExpectedHours - totalUserHours);
     
     console.log('Calcolo giorni lavorativi:', {
       inizio: currentMonthStart,
-      fine: monthEnd,
-      giorniTotali: allDaysInPeriod.length,
+      fine: currentMonthEnd,
+      giorniTotali: allDaysInMonth.length,
       giorniLavorativi: workingDays.length,
       oreAttese: totalExpectedHours,
       oreRendicontate: totalUserHours,
