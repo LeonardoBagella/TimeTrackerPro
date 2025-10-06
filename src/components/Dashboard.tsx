@@ -171,8 +171,7 @@ const Dashboard = () => {
           
           <Button 
             onClick={() => setShowAddTime(true)}
-            variant="outline"
-            className="border-border hover:bg-secondary hover:border-primary/20"
+            className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
             disabled={projects.length === 0}
           >
             <Clock className="w-4 h-4 mr-2" />
@@ -182,8 +181,7 @@ const Dashboard = () => {
           {isAdmin && (
             <Button 
               onClick={() => setShowAdminReports(true)}
-              variant="outline"
-              className="border-border hover:bg-secondary hover:border-primary/20"
+              className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
             >
               <FileText className="w-4 h-4 mr-2" />
               Report Admin
