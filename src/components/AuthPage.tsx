@@ -21,14 +21,14 @@ const AuthPage = () => {
     setIsLoading(true);
 
     if (!email || !password) {
-      setError('Please fill in all fields');
+      setError('Compila tutti i campi');
       setIsLoading(false);
       return;
     }
 
     const { error } = await signIn(email, password);
     if (error) {
-      setError(error.message || 'Invalid credentials. Please try again.');
+      setError(error.message || 'Credenziali non valide. Riprova.');
     }
     setIsLoading(false);
   };
@@ -47,7 +47,7 @@ const AuthPage = () => {
                 TimeTracker Pro
               </CardTitle>
               <CardDescription className="text-gray-600 mt-2">
-                Track your project hours with precision
+                Traccia le ore dei tuoi progetti con precisione
               </CardDescription>
             </div>
           </CardHeader>
@@ -59,7 +59,7 @@ const AuthPage = () => {
                 <Input
                   id="email"
                   type="email"
-                  placeholder="Enter your email"
+                  placeholder="Inserisci la tua email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="h-11 border-input focus:border-primary focus:ring-primary"
@@ -72,7 +72,7 @@ const AuthPage = () => {
                 <Input
                   id="password"
                   type="password"
-                  placeholder="Enter your password"
+                  placeholder="Inserisci la tua password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="h-11 border-input focus:border-primary focus:ring-primary"
@@ -95,10 +95,10 @@ const AuthPage = () => {
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Signing in...
+                    Accesso in corso...
                   </>
                 ) : (
-                  'Sign In'
+                  'Accedi'
                 )}
               </Button>
             </form>

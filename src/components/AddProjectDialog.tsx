@@ -108,8 +108,8 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange 
     
     if (!name.trim()) {
       toast({
-        title: "Error",
-        description: "Please enter a project name",
+        title: "Errore",
+        description: "Inserisci un nome progetto",
         variant: "destructive"
       });
       return;
@@ -122,8 +122,8 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange 
     });
 
     toast({
-      title: "Success",
-      description: "Project added successfully!"
+      title: "Successo",
+      description: "Progetto aggiunto con successo!"
     });
 
     // Reset form

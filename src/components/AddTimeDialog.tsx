@@ -20,9 +20,9 @@ interface AddTimeDialogProps {
 }
 
 const taskTypes = [
-  { value: "analysis", label: "Analysis" },
-  { value: "development", label: "Development" },
-  { value: "meeting", label: "Meeting" }
+  { value: "analysis", label: "Analisi" },
+  { value: "development", label: "Sviluppo" },
+  { value: "meeting", label: "Riunione" }
 ];
 
 const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefilledDate }) => {
@@ -46,8 +46,8 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
     
     if (!projectId) {
       toast({
-        title: "Error",
-        description: "Please select a project",
+        title: "Errore",
+        description: "Seleziona un progetto",
         variant: "destructive"
       });
       return;
@@ -55,8 +55,8 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
 
     if (!hours || isNaN(Number(hours)) || Number(hours) <= 0) {
       toast({
-        title: "Error",
-        description: "Please enter valid hours",
+        title: "Errore",
+        description: "Inserisci ore valide",
         variant: "destructive"
       });
       return;
@@ -67,13 +67,13 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
     addTimeEntry({
       project_id: projectId,
       hours: Number(hours),
-      description: selectedTaskType?.label || 'Development',
+      description: selectedTaskType?.label || 'Sviluppo',
       date
     });
 
     toast({
-      title: "Success",
-      description: "Time entry added successfully!"
+      title: "Successo",
+      description: "Ore registrate con successo!"
     });
 
     // Reset form
@@ -88,15 +88,15 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle className="text-xl font-semibold">Log Time</DialogTitle>
+          <DialogTitle className="text-xl font-semibold">Registra Ore</DialogTitle>
           <DialogDescription>
-            Add time spent on a project.
+            Aggiungi il tempo speso su un progetto.
           </DialogDescription>
         </DialogHeader>
         
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="space-y-2">
-            <Label htmlFor="date" className="text-sm font-medium">Date</Label>
+            <Label htmlFor="date" className="text-sm font-medium">Data</Label>
             <Input
               id="date"
               type="date"
@@ -107,10 +107,10 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="project" className="text-sm font-medium">Project</Label>
+            <Label htmlFor="project" className="text-sm font-medium">Progetto</Label>
             <Select value={projectId} onValueChange={setProjectId}>
               <SelectTrigger>
-                <SelectValue placeholder="Select a project" />
+                <SelectValue placeholder="Seleziona un progetto" />
               </SelectTrigger>
               <SelectContent>
                 {projects.map((project) => (
@@ -129,7 +129,7 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
           </div>
           
           <div className="space-y-4">
-            <Label className="text-sm font-medium">Hours: {hours}</Label>
+            <Label className="text-sm font-medium">Ore: {hours}</Label>
             <div className="px-2">
               <Slider
                 value={[Number(hours)]}
@@ -149,7 +149,7 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
           </div>
           
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Task Type</Label>
+            <Label className="text-sm font-medium">Tipo di Attività</Label>
             <Popover open={taskTypeOpen} onOpenChange={setTaskTypeOpen}>
               <PopoverTrigger asChild>
                 <Button
@@ -160,15 +160,15 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
                 >
                   {taskType
                     ? taskTypes.find((type) => type.value === taskType)?.label
-                    : "Select task type..."}
+                    : "Seleziona tipo attività..."}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-full p-0">
                 <Command>
-                  <CommandInput placeholder="Search task type..." />
+                  <CommandInput placeholder="Cerca tipo attività..." />
                   <CommandList>
-                    <CommandEmpty>No task type found.</CommandEmpty>
+                    <CommandEmpty>Nessun tipo di attività trovato.</CommandEmpty>
                     <CommandGroup>
                       {taskTypes.map((type) => (
                         <CommandItem
@@ -201,13 +201,13 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
               variant="outline" 
               onClick={() => onOpenChange(false)}
             >
-              Cancel
+              Annulla
             </Button>
             <Button 
               type="submit"
               className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90"
             >
-              Log Time
+              Registra Ore
             </Button>
           </div>
         </form>
