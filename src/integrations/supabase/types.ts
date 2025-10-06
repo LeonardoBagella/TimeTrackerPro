@@ -7,13 +7,73 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
   }
   public: {
     Tables: {
+      players: {
+        Row: {
+          altezza: number | null
+          assist_stagione: number | null
+          cognome: string
+          created_at: string
+          data_nascita: string | null
+          gol_stagione: number | null
+          id: string
+          nome: string
+          numero_maglia: number | null
+          peso: number | null
+          piede_preferito: string | null
+          posizione: string
+          presenze_stagione: number | null
+          squadra_attuale: string | null
+          updated_at: string
+          user_id: string
+          valore_mercato: number | null
+        }
+        Insert: {
+          altezza?: number | null
+          assist_stagione?: number | null
+          cognome: string
+          created_at?: string
+          data_nascita?: string | null
+          gol_stagione?: number | null
+          id?: string
+          nome: string
+          numero_maglia?: number | null
+          peso?: number | null
+          piede_preferito?: string | null
+          posizione: string
+          presenze_stagione?: number | null
+          squadra_attuale?: string | null
+          updated_at?: string
+          user_id: string
+          valore_mercato?: number | null
+        }
+        Update: {
+          altezza?: number | null
+          assist_stagione?: number | null
+          cognome?: string
+          created_at?: string
+          data_nascita?: string | null
+          gol_stagione?: number | null
+          id?: string
+          nome?: string
+          numero_maglia?: number | null
+          peso?: number | null
+          piede_preferito?: string | null
+          posizione?: string
+          presenze_stagione?: number | null
+          squadra_attuale?: string | null
+          updated_at?: string
+          user_id?: string
+          valore_mercato?: number | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -37,6 +97,35 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      project_members: {
+        Row: {
+          created_at: string
+          id: string
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       projects: {
         Row: {

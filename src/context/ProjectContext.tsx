@@ -63,10 +63,29 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
     
     setIsLoading(true);
     try {
+      // Fetch projects where user is a member
+      const { data: memberData, error: memberError } = await supabase
+        .from('project_members')
+        .select('project_id')
+        .eq('user_id', user.id);
+
+      if (memberError) {
+        console.error('Error fetching project members:', memberError);
+        return;
+      }
+
+      const projectIds = memberData?.map(m => m.project_id) || [];
+      
+      if (projectIds.length === 0) {
+        setProjects([]);
+        setIsLoading(false);
+        return;
+      }
+
       const { data, error } = await (supabase as any)
         .from('projects')
         .select('*')
-        .eq('user_id', user.id)
+        .in('id', projectIds)
         .order('created_at', { ascending: false });
 
       if (error) {
