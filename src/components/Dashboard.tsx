@@ -166,12 +166,13 @@ const Dashboard = () => {
                       outerRadius={80}
                       paddingAngle={2}
                       dataKey="value"
+                      label={(entry) => `${entry.value.toFixed(1)}h`}
+                      labelLine={false}
                     >
                       {workingDaysData.chartData.map((entry, index) => (
                         <Cell key={`cell-${index}`} fill={entry.color} />
                       ))}
                     </Pie>
-                    <Tooltip formatter={(value: number) => `${value.toFixed(1)}h`} />
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
