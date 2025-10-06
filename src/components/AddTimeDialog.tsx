@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useProjects } from '@/context/ProjectContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,6 +33,13 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
   const [date, setDate] = useState(prefilledDate || new Date().toISOString().split('T')[0]);
   const { projects, addTimeEntry } = useProjects();
   const { toast } = useToast();
+
+  // Update date when prefilledDate changes
+  useEffect(() => {
+    if (prefilledDate && open) {
+      setDate(prefilledDate);
+    }
+  }, [prefilledDate, open]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
