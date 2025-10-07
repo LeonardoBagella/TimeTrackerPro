@@ -32,11 +32,15 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
   const { projects, addTimeEntry } = useProjects();
   const { toast } = useToast();
   
+  // Initialize with profile default or 'development'
   const [projectId, setProjectId] = useState('');
   const [hours, setHours] = useState('4');
-  const [taskType, setTaskType] = useState('development');
+  const [taskType, setTaskType] = useState(profile?.default_task_type || 'development');
   const [taskTypeOpen, setTaskTypeOpen] = useState(false);
   const [date, setDate] = useState(prefilledDate || new Date().toISOString().split('T')[0]);
+
+  // Debug log
+  console.log('AddTimeDialog - profile:', profile, 'taskType:', taskType);
 
   // Update form when dialog opens or profile changes
   useEffect(() => {
@@ -48,7 +52,9 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
         setProjectId(prefilledProjectId);
       }
       // Use profile default or fallback to 'development'
-      setTaskType(profile?.default_task_type || 'development');
+      const defaultType = profile?.default_task_type || 'development';
+      console.log('Setting taskType to:', defaultType);
+      setTaskType(defaultType);
     }
   }, [prefilledDate, prefilledProjectId, open, profile]);
 
