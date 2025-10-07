@@ -206,7 +206,7 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
     return Array.from(projectCosts.values())
       .filter(p => p.budget > 0) // Only show projects with budget set
       .map(p => ({
-        name: p.name,
+        name: p.name.length > 10 ? p.name.substring(0, 10) + '...' : p.name,
         Budget: p.budget,
         'Costo Attuale': Math.round(p.cost),
       }));
@@ -310,7 +310,7 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
                 <BarChart
                   data={budgetChartData}
                   layout="vertical"
-                  margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis 
@@ -322,7 +322,7 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
                     ]}
                     tickFormatter={(value) => `${(value / 1000).toFixed(1)}K€`}
                   />
-                  <YAxis dataKey="name" type="category" width={90} />
+                  <YAxis dataKey="name" type="category" width={75} />
                   <Tooltip 
                     formatter={(value: number) => `${(value / 1000).toFixed(1)}K€`}
                   />
