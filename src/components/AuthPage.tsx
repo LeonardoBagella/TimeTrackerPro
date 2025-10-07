@@ -45,9 +45,7 @@ const AuthPage = () => {
               <CardTitle className="text-2xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 TimeTracker Pro
               </CardTitle>
-              <CardDescription className="text-gray-600 mt-2">
-                Traccia le ore dei tuoi progetti con precisione
-              </CardDescription>
+              <CardDescription className="text-gray-600 mt-2">Traccia le ore dei tuoi progetti</CardDescription>
             </div>
           </CardHeader>
 
