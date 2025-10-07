@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { AlertCircle, Clock, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { QRCodeSVG } from 'qrcode.react';
 
 
 const AuthPage = () => {
@@ -102,6 +103,18 @@ const AuthPage = () => {
                 )}
               </Button>
             </form>
+
+            <div className="mt-6 pt-6 border-t border-gray-200 flex flex-col items-center space-y-2">
+              <p className="text-sm text-gray-600 font-medium">Scansiona per accedere</p>
+              <div className="bg-white p-3 rounded-lg shadow-sm">
+                <QRCodeSVG 
+                  value={window.location.origin}
+                  size={120}
+                  level="M"
+                  includeMargin={false}
+                />
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
