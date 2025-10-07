@@ -66,43 +66,34 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
     
     setIsLoading(true);
     try {
-      // Fetch projects where user is a member
-      const { data: memberData, error: memberError } = await supabase
-        .from('project_members')
-        .select('project_id')
-        .eq('user_id', user.id);
-
-      if (memberError) {
-        console.error('Error fetching project members:', memberError);
-        return;
-      }
-
-      const projectIds = memberData?.map(m => m.project_id) || [];
-      
-      if (projectIds.length === 0) {
-        setProjects([]);
-        setIsLoading(false);
-        return;
-      }
-
+      // Fetch projects in user's organization (filtered by RLS)
       const { data, error } = await (supabase as any)
         .from('projects')
         .select('*')
-        .in('id', projectIds)
         .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error fetching projects:', error);
+        setIsLoading(false);
         return;
       }
+
+      // Filter only projects where user is a member
+      const { data: memberData } = await supabase
+        .from('project_members')
+        .select('project_id')
+        .eq('user_id', user.id);
+
+      const projectIds = new Set(memberData?.map(m => m.project_id) || []);
+      const userProjects = (data || []).filter((p: any) => projectIds.has(p.id));
 
       // Calculate total hours for each project (current month only)
       const currentMonthStart = startOfMonth(new Date()).toISOString();
       const currentMonthEnd = endOfMonth(new Date()).toISOString();
       
       const projectsWithHours = await Promise.all(
-        (data || []).map(async (project: any) => {
-          // Get time entries for current month only (all users)
+        userProjects.map(async (project: any) => {
+          // Get time entries for current month only (all users in organization)
           const { data: allEntries } = await (supabase as any)
             .from('time_entries')
             .select('hours, user_id')
