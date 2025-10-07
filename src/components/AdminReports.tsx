@@ -316,7 +316,10 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
                   <XAxis 
                     type="number" 
                     scale="log" 
-                    domain={['auto', 'auto']}
+                    domain={[
+                      'auto', 
+                      Math.max(...budgetChartData.map(d => d.Budget)) + 100000
+                    ]}
                     tickFormatter={(value) => `${(value / 1000).toFixed(1)}K€`}
                   />
                   <YAxis dataKey="name" type="category" width={90} />
