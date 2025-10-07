@@ -8,6 +8,7 @@ export interface Project {
   name: string;
   description: string;
   color: string;
+  budget?: number;
   totalHours?: number;
   userHours?: number;
   created_at?: string;

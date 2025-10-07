@@ -14,69 +14,10 @@ export type Database = {
   }
   public: {
     Tables: {
-      players: {
-        Row: {
-          altezza: number | null
-          assist_stagione: number | null
-          cognome: string
-          created_at: string
-          data_nascita: string | null
-          gol_stagione: number | null
-          id: string
-          nome: string
-          numero_maglia: number | null
-          peso: number | null
-          piede_preferito: string | null
-          posizione: string
-          presenze_stagione: number | null
-          squadra_attuale: string | null
-          updated_at: string
-          user_id: string
-          valore_mercato: number | null
-        }
-        Insert: {
-          altezza?: number | null
-          assist_stagione?: number | null
-          cognome: string
-          created_at?: string
-          data_nascita?: string | null
-          gol_stagione?: number | null
-          id?: string
-          nome: string
-          numero_maglia?: number | null
-          peso?: number | null
-          piede_preferito?: string | null
-          posizione: string
-          presenze_stagione?: number | null
-          squadra_attuale?: string | null
-          updated_at?: string
-          user_id: string
-          valore_mercato?: number | null
-        }
-        Update: {
-          altezza?: number | null
-          assist_stagione?: number | null
-          cognome?: string
-          created_at?: string
-          data_nascita?: string | null
-          gol_stagione?: number | null
-          id?: string
-          nome?: string
-          numero_maglia?: number | null
-          peso?: number | null
-          piede_preferito?: string | null
-          posizione?: string
-          presenze_stagione?: number | null
-          squadra_attuale?: string | null
-          updated_at?: string
-          user_id?: string
-          valore_mercato?: number | null
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           created_at: string
+          daily_cost: number | null
           display_name: string | null
           id: string
           updated_at: string
@@ -84,6 +25,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          daily_cost?: number | null
           display_name?: string | null
           id?: string
           updated_at?: string
@@ -91,6 +33,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          daily_cost?: number | null
           display_name?: string | null
           id?: string
           updated_at?: string
@@ -129,6 +72,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          budget: number | null
           closed_at: string | null
           color: string
           created_at: string
@@ -139,6 +83,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          budget?: number | null
           closed_at?: string | null
           color?: string
           created_at?: string
@@ -149,6 +94,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          budget?: number | null
           closed_at?: string | null
           color?: string
           created_at?: string

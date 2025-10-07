@@ -25,6 +25,7 @@ import { FileText, Search, ChevronLeft, Download } from 'lucide-react';
 import { format, subMonths, isAfter } from 'date-fns';
 import { it } from 'date-fns/locale';
 import * as XLSX from 'xlsx';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 interface TimeEntry {
   id: string;
@@ -53,11 +54,21 @@ interface EnrichedTimeEntry extends TimeEntry {
   user_name: string;
 }
 
+interface ProjectBudgetData {
+  project_id: string;
+  project_name: string;
+  budget: number;
+  actual_cost: number;
+}
+
 const ITEMS_PER_PAGE = 20;
 
 const AdminReports = ({ onBack }: { onBack: () => void }) => {
   const { isAdmin, isLoading: roleLoading } = useUserRole();
   const [timeEntries, setTimeEntries] = useState<EnrichedTimeEntry[]>([]);
+  const [allTimeEntries, setAllTimeEntries] = useState<EnrichedTimeEntry[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
+  const [profiles, setProfiles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
@@ -75,7 +86,7 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
       const threeMonthsAgo = subMonths(new Date(), 3);
       const threeMonthsAgoDate = format(threeMonthsAgo, 'yyyy-MM-dd');
 
-      // Fetch time entries from last 3 months
+      // Fetch time entries from last 3 months for the table
       const { data: entries, error: entriesError } = await supabase
         .from('time_entries')
         .select('*')
@@ -84,29 +95,36 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
 
       if (entriesError) throw entriesError;
 
-      // Fetch projects
+      // Fetch ALL time entries for cost calculation
+      const { data: allEntries, error: allEntriesError } = await supabase
+        .from('time_entries')
+        .select('*');
+
+      if (allEntriesError) throw allEntriesError;
+
+      // Fetch projects with budget
       const { data: projects, error: projectsError } = await supabase
         .from('projects')
-        .select('id, name, color');
+        .select('id, name, color, budget');
 
       if (projectsError) throw projectsError;
 
-      // Fetch profiles
+      // Fetch profiles with daily_cost
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select('user_id, display_name');
+        .select('user_id, display_name, daily_cost');
 
       if (profilesError) throw profilesError;
 
       // Create lookup maps
-      const projectMap = new Map<string, Project>(
+      const projectMap = new Map<string, any>(
         projects?.map(p => [p.id, p]) || []
       );
-      const profileMap = new Map<string, Profile>(
+      const profileMap = new Map<string, any>(
         profiles?.map(p => [p.user_id, p]) || []
       );
 
-      // Enrich time entries
+      // Enrich time entries (last 3 months)
       const enrichedEntries: EnrichedTimeEntry[] = (entries || []).map(entry => ({
         ...entry,
         project_name: projectMap.get(entry.project_id)?.name || 'Progetto sconosciuto',
@@ -114,7 +132,18 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
         user_name: profileMap.get(entry.user_id)?.display_name || 'Utente sconosciuto',
       }));
 
+      // Enrich all time entries for cost calculation
+      const enrichedAllEntries: EnrichedTimeEntry[] = (allEntries || []).map(entry => ({
+        ...entry,
+        project_name: projectMap.get(entry.project_id)?.name || 'Progetto sconosciuto',
+        project_color: projectMap.get(entry.project_id)?.color || '#gray',
+        user_name: profileMap.get(entry.user_id)?.display_name || 'Utente sconosciuto',
+      }));
+
       setTimeEntries(enrichedEntries);
+      setAllTimeEntries(enrichedAllEntries);
+      setProjects(projects || []);
+      setProfiles(profiles || []);
     } catch (error) {
       console.error('Error fetching data:', error);
     } finally {
@@ -143,6 +172,45 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
   const totalHours = useMemo(() => {
     return filteredEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
   }, [filteredEntries]);
+
+  const budgetChartData = useMemo(() => {
+    // Get unique projects from filtered entries
+    const filteredProjectIds = new Set(filteredEntries.map(e => e.project_id));
+    
+    // Create lookup maps
+    const profileMap = new Map(profiles.map(p => [p.user_id, p]));
+    const projectMap = new Map(projects.map(p => [p.id, p]));
+    
+    // Calculate actual costs per project using ALL time entries
+    const projectCosts = new Map<string, { name: string; budget: number; cost: number }>();
+    
+    allTimeEntries.forEach(entry => {
+      if (!filteredProjectIds.has(entry.project_id)) return;
+      
+      if (!projectCosts.has(entry.project_id)) {
+        const project = projectMap.get(entry.project_id);
+        projectCosts.set(entry.project_id, {
+          name: entry.project_name,
+          budget: project?.budget || 0,
+          cost: 0,
+        });
+      }
+      
+      const projectData = projectCosts.get(entry.project_id)!;
+      const profile = profileMap.get(entry.user_id);
+      const dailyCost = profile?.daily_cost || 0;
+      const days = Number(entry.hours) / 8;
+      projectData.cost += days * dailyCost;
+    });
+    
+    return Array.from(projectCosts.values())
+      .filter(p => p.budget > 0) // Only show projects with budget set
+      .map(p => ({
+        name: p.name,
+        Budget: p.budget,
+        'Costo Attuale': Math.round(p.cost),
+      }));
+  }, [filteredEntries, allTimeEntries, projects, profiles]);
 
   const handleExportExcel = () => {
     // Prepare data for export
@@ -229,6 +297,34 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {budgetChartData.length > 0 && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Budget vs Costo Attuale per Progetto</CardTitle>
+              <CardDescription>
+                Confronto tra budget allocato e costo effettivo calcolato su tutte le registrazioni
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart
+                  data={budgetChartData}
+                  layout="vertical"
+                  margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" />
+                  <YAxis dataKey="name" type="category" width={90} />
+                  <Tooltip />
+                  <Legend />
+                  <Bar dataKey="Budget" fill="hsl(var(--primary))" />
+                  <Bar dataKey="Costo Attuale" fill="hsl(var(--accent))" />
+                </BarChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        )}
+        
         <Card>
           <CardHeader>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">

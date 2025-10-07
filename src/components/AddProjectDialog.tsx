@@ -25,6 +25,7 @@ const colors = [
 const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange, isProjectOwner }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [budget, setBudget] = useState('');
   const [selectedColor, setSelectedColor] = useState(colors[0]);
   const [availableProjects, setAvailableProjects] = useState<any[]>([]);
   const [loadingProjects, setLoadingProjects] = useState(false);
@@ -116,10 +117,20 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange,
       return;
     }
 
+    if (!budget || parseInt(budget) <= 0) {
+      toast({
+        title: "Errore",
+        description: "Inserisci un budget valido",
+        variant: "destructive"
+      });
+      return;
+    }
+
     addProject({
       name: name.trim(),
       description: description.trim(),
-      color: selectedColor
+      color: selectedColor,
+      budget: parseInt(budget)
     });
 
     toast({
@@ -130,6 +141,7 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange,
     // Reset form
     setName('');
     setDescription('');
+    setBudget('');
     setSelectedColor(colors[0]);
     onOpenChange(false);
   };
@@ -174,6 +186,20 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange,
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   className="min-h-[80px] resize-none"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="budget" className="text-sm font-medium">Budget (€) *</Label>
+                <Input
+                  id="budget"
+                  type="number"
+                  placeholder="Inserisci budget in euro"
+                  value={budget}
+                  onChange={(e) => setBudget(e.target.value)}
+                  className="h-10"
+                  min="1"
+                  required
                 />
               </div>
 
