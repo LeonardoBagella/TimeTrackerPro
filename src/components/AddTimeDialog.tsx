@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useProjects } from '@/context/ProjectContext';
+import { useAuth } from '@/context/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -17,6 +18,7 @@ interface AddTimeDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   prefilledDate?: string;
+  prefilledProjectId?: string;
 }
 
 const taskTypes = [
@@ -25,21 +27,40 @@ const taskTypes = [
   { value: "meeting", label: "Riunione" }
 ];
 
-const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefilledDate }) => {
-  const [projectId, setProjectId] = useState('');
-  const [hours, setHours] = useState('4');
-  const [taskType, setTaskType] = useState('development');
-  const [taskTypeOpen, setTaskTypeOpen] = useState(false);
-  const [date, setDate] = useState(prefilledDate || new Date().toISOString().split('T')[0]);
+const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefilledDate, prefilledProjectId }) => {
+  const { profile } = useAuth();
   const { projects, addTimeEntry } = useProjects();
   const { toast } = useToast();
+  
+  // Get default task type from profile
+  const getDefaultTaskType = () => {
+    const defaultType = profile?.default_task_type || 'Sviluppo';
+    const taskTypeMap: Record<string, string> = {
+      'Sviluppo': 'development',
+      'Analisi': 'analysis',
+      'Riunione': 'meeting'
+    };
+    return taskTypeMap[defaultType] || 'development';
+  };
+  
+  const [projectId, setProjectId] = useState('');
+  const [hours, setHours] = useState('4');
+  const [taskType, setTaskType] = useState(getDefaultTaskType());
+  const [taskTypeOpen, setTaskTypeOpen] = useState(false);
+  const [date, setDate] = useState(prefilledDate || new Date().toISOString().split('T')[0]);
 
-  // Update date when prefilledDate changes
+  // Update date and project when props change
   useEffect(() => {
-    if (prefilledDate && open) {
-      setDate(prefilledDate);
+    if (open) {
+      if (prefilledDate) {
+        setDate(prefilledDate);
+      }
+      if (prefilledProjectId) {
+        setProjectId(prefilledProjectId);
+      }
+      setTaskType(getDefaultTaskType());
     }
-  }, [prefilledDate, open]);
+  }, [prefilledDate, prefilledProjectId, open, profile]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,7 +100,7 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
     // Reset form
     setProjectId('');
     setHours('4');
-    setTaskType('development');
+    setTaskType(getDefaultTaskType());
     setDate(prefilledDate || new Date().toISOString().split('T')[0]);
     onOpenChange(false);
   };

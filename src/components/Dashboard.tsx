@@ -23,6 +23,7 @@ const Dashboard = () => {
   const [showAddProject, setShowAddProject] = useState(false);
   const [showAddTime, setShowAddTime] = useState(false);
   const [prefilledDate, setPrefilledDate] = useState<string | undefined>(undefined);
+  const [prefilledProjectId, setPrefilledProjectId] = useState<string | undefined>(undefined);
   const [showPreviousMonth, setShowPreviousMonth] = useState(false);
   const [showAdminReports, setShowAdminReports] = useState(false);
 
@@ -120,6 +121,13 @@ const Dashboard = () => {
 
   const handleMissedEntryClick = (date: string) => {
     setPrefilledDate(date);
+    setPrefilledProjectId(undefined);
+    setShowAddTime(true);
+  };
+
+  const handleProjectClick = (projectId: string) => {
+    setPrefilledProjectId(projectId);
+    setPrefilledDate(undefined);
     setShowAddTime(true);
   };
 
@@ -278,7 +286,7 @@ const Dashboard = () => {
               ) : (
                 <div className="space-y-4">
                   {projects.map((project) => (
-                    <div key={project.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                    <div key={project.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => handleProjectClick(project.id)}>
                       <div className="flex items-center space-x-3">
                         <div 
                           className="w-4 h-4 rounded-full"
@@ -299,7 +307,10 @@ const Dashboard = () => {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => deleteProject(project.id)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            deleteProject(project.id);
+                          }}
                           className="text-red-500 hover:text-red-700 hover:bg-red-50"
                         >
                           <Trash2 className="w-4 h-4" />
@@ -423,9 +434,13 @@ const Dashboard = () => {
         open={showAddTime} 
         onOpenChange={(open) => {
           setShowAddTime(open);
-          if (!open) setPrefilledDate(undefined);
+          if (!open) {
+            setPrefilledDate(undefined);
+            setPrefilledProjectId(undefined);
+          }
         }}
         prefilledDate={prefilledDate}
+        prefilledProjectId={prefilledProjectId}
       />
     </div>
   );

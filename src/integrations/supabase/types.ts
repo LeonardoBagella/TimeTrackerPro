@@ -39,6 +39,7 @@ export type Database = {
         Row: {
           created_at: string
           daily_cost: number | null
+          default_task_type: string
           display_name: string | null
           id: string
           organization_id: string | null
@@ -48,6 +49,7 @@ export type Database = {
         Insert: {
           created_at?: string
           daily_cost?: number | null
+          default_task_type?: string
           display_name?: string | null
           id?: string
           organization_id?: string | null
@@ -57,6 +59,7 @@ export type Database = {
         Update: {
           created_at?: string
           daily_cost?: number | null
+          default_task_type?: string
           display_name?: string | null
           id?: string
           organization_id?: string | null
