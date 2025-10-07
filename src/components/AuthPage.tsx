@@ -1,39 +1,37 @@
-import React, { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-import { AlertCircle, Clock, Loader2 } from 'lucide-react';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { QRCodeSVG } from 'qrcode.react';
-
+import React, { useState } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { AlertCircle, Clock, Loader2 } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { QRCodeSVG } from "qrcode.react";
 
 const AuthPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { signIn } = useAuth();
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setIsLoading(true);
 
     if (!email || !password) {
-      setError('Compila tutti i campi');
+      setError("Compila tutti i campi");
       setIsLoading(false);
       return;
     }
 
     const { error } = await signIn(email, password);
     if (error) {
-      setError(error.message || 'Credenziali non valide. Riprova.');
+      setError(error.message || "Credenziali non valide. Riprova.");
     }
     setIsLoading(false);
   };
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary via-primary/80 to-primary/60 flex items-center justify-center p-4">
@@ -52,11 +50,13 @@ const AuthPage = () => {
               </CardDescription>
             </div>
           </CardHeader>
-          
+
           <CardContent>
             <form onSubmit={handleSignIn} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-gray-700 font-medium">Email</Label>
+                <Label htmlFor="email" className="text-gray-700 font-medium">
+                  Email
+                </Label>
                 <Input
                   id="email"
                   type="email"
@@ -67,9 +67,11 @@ const AuthPage = () => {
                   disabled={isLoading}
                 />
               </div>
-              
+
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-700 font-medium">Password</Label>
+                <Label htmlFor="password" className="text-gray-700 font-medium">
+                  Password
+                </Label>
                 <Input
                   id="password"
                   type="password"
@@ -88,8 +90,8 @@ const AuthPage = () => {
                 </Alert>
               )}
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="w-full h-11 bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground font-medium shadow-lg hover:shadow-xl transition-all duration-200"
                 disabled={isLoading}
               >
@@ -99,20 +101,15 @@ const AuthPage = () => {
                     Accesso in corso...
                   </>
                 ) : (
-                  'Accedi'
+                  "Accedi"
                 )}
               </Button>
             </form>
 
             <div className="mt-6 pt-6 border-t border-gray-200 flex flex-col items-center space-y-2">
-              <p className="text-sm text-gray-600 font-medium">Scansiona per accedere</p>
+              <p className="text-sm text-gray-600 font-medium">Condividi l'URL con altri</p>
               <div className="bg-white p-3 rounded-lg shadow-sm">
-                <QRCodeSVG 
-                  value={window.location.origin}
-                  size={120}
-                  level="M"
-                  includeMargin={false}
-                />
+                <QRCodeSVG value={window.location.origin} size={120} level="M" includeMargin={false} />
               </div>
             </div>
           </CardContent>
