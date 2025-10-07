@@ -324,8 +324,16 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
                     formatter={(value: number) => `${(value / 1000).toFixed(1)}K€`}
                   />
                   <Legend />
-                  <Bar dataKey="Budget" fill="hsl(var(--primary))" />
-                  <Bar dataKey="Costo Attuale" fill="hsl(var(--accent))" />
+                  <Bar 
+                    dataKey="Budget" 
+                    fill="hsl(var(--primary))"
+                    label={{ position: 'right', formatter: (value: number) => `${(value / 1000).toFixed(1)}K€` }}
+                  />
+                  <Bar 
+                    dataKey="Costo Attuale" 
+                    fill="hsl(var(--accent))"
+                    label={{ position: 'right', formatter: (value: number) => `${(value / 1000).toFixed(1)}K€` }}
+                  />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
