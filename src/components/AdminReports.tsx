@@ -313,9 +313,16 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
                   margin={{ top: 5, right: 30, left: 100, bottom: 5 }}
                 >
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" />
+                  <XAxis 
+                    type="number" 
+                    scale="log" 
+                    domain={['auto', 'auto']}
+                    tickFormatter={(value) => `${(value / 1000).toFixed(1)}K€`}
+                  />
                   <YAxis dataKey="name" type="category" width={90} />
-                  <Tooltip />
+                  <Tooltip 
+                    formatter={(value: number) => `${(value / 1000).toFixed(1)}K€`}
+                  />
                   <Legend />
                   <Bar dataKey="Budget" fill="hsl(var(--primary))" />
                   <Bar dataKey="Costo Attuale" fill="hsl(var(--accent))" />
