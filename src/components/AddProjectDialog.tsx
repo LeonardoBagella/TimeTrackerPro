@@ -14,7 +14,7 @@ import { useAuth } from '@/context/AuthContext';
 interface AddProjectDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  isProjectOwner: boolean;
+  canCreateProject: boolean;
 }
 
 const colors = [
@@ -22,7 +22,7 @@ const colors = [
   '#f59e0b', '#ec4899', '#6366f1', '#84cc16'
 ];
 
-const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange, isProjectOwner }) => {
+const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange, canCreateProject }) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [budget, setBudget] = useState('');
@@ -152,19 +152,19 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange,
         <DialogHeader>
           <DialogTitle className="text-xl font-semibold">Gestione Progetti</DialogTitle>
           <DialogDescription>
-            Puoi unirti ad un progetto a cui non appartieni ancora o se sei un Project Owner puoi aprirne uno nuovo
+            Puoi unirti ad un progetto a cui non appartieni ancora o se sei un Project Owner o Admin puoi aprirne uno nuovo
           </DialogDescription>
         </DialogHeader>
         
-        <Tabs defaultValue={isProjectOwner ? "create" : "join"} className="w-full">
-          {isProjectOwner && (
+        <Tabs defaultValue={canCreateProject ? "create" : "join"} className="w-full">
+          {canCreateProject && (
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="create">Crea Nuovo</TabsTrigger>
               <TabsTrigger value="join">Unisciti</TabsTrigger>
             </TabsList>
           )}
           
-          {isProjectOwner && (
+          {canCreateProject && (
             <TabsContent value="create" className="mt-4">
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="space-y-2">
@@ -241,7 +241,7 @@ const AddProjectDialog: React.FC<AddProjectDialogProps> = ({ open, onOpenChange,
           </TabsContent>
           )}
           
-          <TabsContent value="join" className={isProjectOwner ? "mt-4" : "mt-0"}>
+          <TabsContent value="join" className={canCreateProject ? "mt-4" : "mt-0"}>
             <div className="space-y-4">
               {loadingProjects ? (
                 <div className="text-center py-8 text-muted-foreground">

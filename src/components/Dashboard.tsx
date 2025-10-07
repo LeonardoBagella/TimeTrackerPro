@@ -417,7 +417,7 @@ const Dashboard = () => {
       <AddProjectDialog 
         open={showAddProject} 
         onOpenChange={setShowAddProject}
-        isProjectOwner={isProjectOwner}
+        canCreateProject={isProjectOwner || isAdmin}
       />
       <AddTimeDialog 
         open={showAddTime} 
