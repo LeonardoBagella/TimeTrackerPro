@@ -1,20 +1,27 @@
-
-import React, { useState, useMemo } from 'react';
-import { useAuth } from '@/context/AuthContext';
-import { useProjects } from '@/context/ProjectContext';
-import { useUserRole } from '@/hooks/useUserRole';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { LogOut, Plus, Clock, Trash2, Calendar, AlertTriangle, TrendingUp, FileText } from 'lucide-react';
-import AddProjectDialog from './AddProjectDialog';
-import AddTimeDialog from './AddTimeDialog';
-import AdminReports from './AdminReports';
-import { calculateMissedEntries } from '@/utils/timeCalculations';
-import { startOfMonth, endOfMonth, isWithinInterval, parseISO, eachDayOfInterval, isWeekend, subMonths } from 'date-fns';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import React, { useState, useMemo } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { useProjects } from "@/context/ProjectContext";
+import { useUserRole } from "@/hooks/useUserRole";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import { LogOut, Plus, Clock, Trash2, Calendar, AlertTriangle, TrendingUp, FileText } from "lucide-react";
+import AddProjectDialog from "./AddProjectDialog";
+import AddTimeDialog from "./AddTimeDialog";
+import AdminReports from "./AdminReports";
+import { calculateMissedEntries } from "@/utils/timeCalculations";
+import {
+  startOfMonth,
+  endOfMonth,
+  isWithinInterval,
+  parseISO,
+  eachDayOfInterval,
+  isWeekend,
+  subMonths,
+} from "date-fns";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -30,9 +37,9 @@ const Dashboard = () => {
   // Filter time entries for current month
   const currentMonthStart = startOfMonth(new Date());
   const currentMonthEnd = endOfMonth(new Date());
-  
+
   const currentMonthEntries = useMemo(() => {
-    return timeEntries.filter(entry => {
+    return timeEntries.filter((entry) => {
       const entryDate = parseISO(entry.date);
       return isWithinInterval(entryDate, { start: currentMonthStart, end: currentMonthEnd });
     });
@@ -47,47 +54,45 @@ const Dashboard = () => {
     return projects.reduce((sum, project) => sum + (project.totalHours || 0), 0);
   }, [projects]);
 
-  const recentEntries = timeEntries
-    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 5);
+  const recentEntries = timeEntries.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()).slice(0, 5);
 
   // Calculate working days for current month (entire month)
   const workingDaysData = useMemo(() => {
     const allDaysInMonth = eachDayOfInterval({
       start: currentMonthStart,
-      end: currentMonthEnd
+      end: currentMonthEnd,
     });
-    
-    const workingDays = allDaysInMonth.filter(day => !isWeekend(day));
+
+    const workingDays = allDaysInMonth.filter((day) => !isWeekend(day));
     const totalExpectedHours = workingDays.length * 8;
     const remainingHours = Math.max(0, totalExpectedHours - totalUserHours);
-    
-    console.log('Calcolo giorni lavorativi:', {
+
+    console.log("Calcolo giorni lavorativi:", {
       inizio: currentMonthStart,
       fine: currentMonthEnd,
       giorniTotali: allDaysInMonth.length,
       giorniLavorativi: workingDays.length,
       oreAttese: totalExpectedHours,
       oreRendicontate: totalUserHours,
-      oreMancanti: remainingHours
+      oreMancanti: remainingHours,
     });
-    
+
     return {
       chartData: [
-        { name: 'Ore Rendicontate', value: totalUserHours, color: '#10b981' },
-        { name: 'Ore Mancanti', value: remainingHours, color: '#9ca3af' }
+        { name: "Ore Rendicontate", value: totalUserHours, color: "#10b981" },
+        { name: "Ore Mancanti", value: remainingHours, color: "#9ca3af" },
       ],
       workingDaysCount: workingDays.length,
-      totalExpectedHours
+      totalExpectedHours,
     };
   }, [currentMonthStart, currentMonthEnd, totalUserHours]);
 
   // Calculate working days for previous month
   const previousMonthStart = startOfMonth(subMonths(new Date(), 1));
   const previousMonthEnd = endOfMonth(subMonths(new Date(), 1));
-  
+
   const previousMonthEntries = useMemo(() => {
-    return timeEntries.filter(entry => {
+    return timeEntries.filter((entry) => {
       const entryDate = parseISO(entry.date);
       return isWithinInterval(entryDate, { start: previousMonthStart, end: previousMonthEnd });
     });
@@ -100,20 +105,20 @@ const Dashboard = () => {
   const previousMonthData = useMemo(() => {
     const allDaysInMonth = eachDayOfInterval({
       start: previousMonthStart,
-      end: previousMonthEnd
+      end: previousMonthEnd,
     });
-    
-    const workingDays = allDaysInMonth.filter(day => !isWeekend(day));
+
+    const workingDays = allDaysInMonth.filter((day) => !isWeekend(day));
     const totalExpectedHours = workingDays.length * 8;
     const remainingHours = Math.max(0, totalExpectedHours - totalPreviousMonthHours);
-    
+
     return {
       chartData: [
-        { name: 'Ore Rendicontate', value: totalPreviousMonthHours, color: '#10b981' },
-        { name: 'Ore Mancanti', value: remainingHours, color: '#9ca3af' }
+        { name: "Ore Rendicontate", value: totalPreviousMonthHours, color: "#10b981" },
+        { name: "Ore Mancanti", value: remainingHours, color: "#9ca3af" },
       ],
       workingDaysCount: workingDays.length,
-      totalExpectedHours
+      totalExpectedHours,
     };
   }, [previousMonthStart, previousMonthEnd, totalPreviousMonthHours]);
 
@@ -149,12 +154,12 @@ const Dashboard = () => {
                 TimeTracker Pro
               </h1>
             </div>
-            
+
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Benvenuto, {user?.email?.split('@')[0]}</span>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <span className="text-sm text-gray-600">Benvenuto, {user?.email?.split("@")[0]}</span>
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={signOut}
                 className="hover:bg-red-50 hover:border-red-200 hover:text-red-600"
               >
@@ -169,15 +174,15 @@ const Dashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-4 mb-8">
-          <Button 
+          <Button
             onClick={() => setShowAddProject(true)}
             className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
           >
             <Plus className="w-4 h-4 mr-2" />
             Aggiungi Progetto
           </Button>
-          
-          <Button 
+
+          <Button
             onClick={() => setShowAddTime(true)}
             className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
             disabled={projects.length === 0}
@@ -187,7 +192,7 @@ const Dashboard = () => {
           </Button>
 
           {isAdmin && (
-            <Button 
+            <Button
               onClick={() => setShowAdminReports(true)}
               className="bg-gradient-to-r from-primary to-accent hover:from-primary/90 hover:to-accent/90 text-primary-foreground shadow-lg hover:shadow-xl transition-all duration-200"
             >
@@ -204,9 +209,7 @@ const Dashboard = () => {
               <CardTitle className="text-sm font-medium text-gray-600">Ore Mese Corrente</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="text-3xl font-bold text-accent-foreground">
-                {totalUserHours.toFixed(1)}
-              </div>
+              <div className="text-3xl font-bold text-accent-foreground">{totalUserHours.toFixed(1)}</div>
               <p className="text-xs text-gray-500 mt-1">Ore rendicontate questo mese</p>
             </CardContent>
           </Card>
@@ -215,17 +218,13 @@ const Dashboard = () => {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-sm font-medium text-gray-600">
-                  {showPreviousMonth ? 'Mese Precedente' : 'Progresso Mensile'}
+                  {showPreviousMonth ? "Mese Precedente" : "Progresso Mensile"}
                 </CardTitle>
                 <div className="flex items-center space-x-2">
                   <Label htmlFor="month-toggle" className="text-xs text-gray-500">
-                    {showPreviousMonth ? 'Precedente' : 'Attuale'}
+                    {showPreviousMonth ? "Precedente" : "Attuale"}
                   </Label>
-                  <Switch
-                    id="month-toggle"
-                    checked={showPreviousMonth}
-                    onCheckedChange={setShowPreviousMonth}
-                  />
+                  <Switch id="month-toggle" checked={showPreviousMonth} onCheckedChange={setShowPreviousMonth} />
                 </div>
               </div>
             </CardHeader>
@@ -244,19 +243,20 @@ const Dashboard = () => {
                       label={(entry) => `${entry.value.toFixed(1)}h`}
                       labelLine={false}
                     >
-                      {(showPreviousMonth ? previousMonthData.chartData : workingDaysData.chartData).map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
+                      {(showPreviousMonth ? previousMonthData.chartData : workingDaysData.chartData).map(
+                        (entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ),
+                      )}
                     </Pie>
                     <Legend />
                   </PieChart>
                 </ResponsiveContainer>
               </div>
               <p className="text-xs text-gray-500 mt-2 text-center">
-                {showPreviousMonth 
+                {showPreviousMonth
                   ? `${previousMonthData.workingDaysCount} giorni lavorativi × 8h = ${previousMonthData.totalExpectedHours}h previste`
-                  : `${workingDaysData.workingDaysCount} giorni lavorativi × 8h = ${workingDaysData.totalExpectedHours}h previste`
-                }
+                  : `${workingDaysData.workingDaysCount} giorni lavorativi × 8h = ${workingDaysData.totalExpectedHours}h previste`}
               </p>
             </CardContent>
           </Card>
@@ -286,12 +286,13 @@ const Dashboard = () => {
               ) : (
                 <div className="space-y-4">
                   {projects.map((project) => (
-                    <div key={project.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer" onClick={() => handleProjectClick(project.id)}>
+                    <div
+                      key={project.id}
+                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors cursor-pointer"
+                      onClick={() => handleProjectClick(project.id)}
+                    >
                       <div className="flex items-center space-x-3">
-                        <div 
-                          className="w-4 h-4 rounded-full"
-                          style={{ backgroundColor: project.color }}
-                        />
+                        <div className="w-4 h-4 rounded-full" style={{ backgroundColor: project.color }} />
                         <div>
                           <h3 className="font-medium text-gray-900">{project.name}</h3>
                           <p className="text-sm text-gray-500">{project.description}</p>
@@ -323,6 +324,53 @@ const Dashboard = () => {
             </CardContent>
           </Card>
 
+          {/* Possible Missed Entries */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center">
+                <AlertTriangle className="w-5 h-5 mr-2 text-yellow-600" />
+                Possibili Voci Mancanti
+              </CardTitle>
+              <CardDescription>Giorni lavorativi con meno di 8 ore registrate</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {missedEntries.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <Clock className="w-12 h-12 mx-auto mb-4 text-gray-300" />
+                  <p>Ottimo! Nessuna voce mancante nell'ultimo mese.</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {missedEntries.slice(0, 10).map((entry) => (
+                    <div
+                      key={entry.date}
+                      className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors cursor-pointer"
+                      onClick={() => handleMissedEntryClick(entry.date)}
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="w-3 h-3 bg-yellow-500 rounded-full" />
+                        <div>
+                          <h4 className="font-medium text-gray-900">{entry.formattedDate}</h4>
+                          <p className="text-sm text-gray-500">
+                            {entry.totalHours > 0 ? `${entry.totalHours}h registrate` : "Nessuna ora registrata"}
+                          </p>
+                        </div>
+                      </div>
+                      <Badge variant="outline" className="bg-yellow-100 text-yellow-700 border-yellow-300">
+                        Mancano {8 - entry.totalHours}h
+                      </Badge>
+                    </div>
+                  ))}
+                  {missedEntries.length > 10 && (
+                    <p className="text-sm text-gray-500 text-center pt-2">
+                      E altri {missedEntries.length - 10} giorni...
+                    </p>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
           {/* Recent Time Entries */}
           <Card>
             <CardHeader>
@@ -341,13 +389,16 @@ const Dashboard = () => {
               ) : (
                 <div className="space-y-4">
                   {recentEntries.map((entry) => {
-                    const project = projects.find(p => p.id === entry.project_id);
+                    const project = projects.find((p) => p.id === entry.project_id);
                     return (
-                      <div key={entry.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                      <div
+                        key={entry.id}
+                        className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
                         <div className="flex items-center space-x-3">
-                          <div 
+                          <div
                             className="w-4 h-4 rounded-full"
-                            style={{ backgroundColor: project?.color || '#gray' }}
+                            style={{ backgroundColor: project?.color || "#gray" }}
                           />
                           <div>
                             <h3 className="font-medium text-gray-900">{project?.name}</h3>
@@ -375,63 +426,16 @@ const Dashboard = () => {
               )}
             </CardContent>
           </Card>
-
-          {/* Possible Missed Entries */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <AlertTriangle className="w-5 h-5 mr-2 text-yellow-600" />
-                Possibili Voci Mancanti
-              </CardTitle>
-              <CardDescription>Giorni lavorativi con meno di 8 ore registrate</CardDescription>
-            </CardHeader>
-            <CardContent>
-              {missedEntries.length === 0 ? (
-                <div className="text-center py-8 text-gray-500">
-                  <Clock className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                  <p>Ottimo! Nessuna voce mancante nell'ultimo mese.</p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {missedEntries.slice(0, 10).map((entry) => (
-                    <div 
-                      key={entry.date} 
-                      className="flex items-center justify-between p-3 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition-colors cursor-pointer"
-                      onClick={() => handleMissedEntryClick(entry.date)}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <div className="w-3 h-3 bg-yellow-500 rounded-full" />
-                        <div>
-                          <h4 className="font-medium text-gray-900">{entry.formattedDate}</h4>
-                          <p className="text-sm text-gray-500">
-                            {entry.totalHours > 0 ? `${entry.totalHours}h registrate` : 'Nessuna ora registrata'}
-                          </p>
-                        </div>
-                      </div>
-                      <Badge variant="outline" className="bg-yellow-100 text-yellow-700 border-yellow-300">
-                        Mancano {8 - entry.totalHours}h
-                      </Badge>
-                    </div>
-                  ))}
-                  {missedEntries.length > 10 && (
-                    <p className="text-sm text-gray-500 text-center pt-2">
-                      E altri {missedEntries.length - 10} giorni...
-                    </p>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
         </div>
       </div>
 
-      <AddProjectDialog 
-        open={showAddProject} 
+      <AddProjectDialog
+        open={showAddProject}
         onOpenChange={setShowAddProject}
         canCreateProject={isProjectOwner || isAdmin}
       />
-      <AddTimeDialog 
-        open={showAddTime} 
+      <AddTimeDialog
+        open={showAddTime}
         onOpenChange={(open) => {
           setShowAddTime(open);
           if (!open) {
