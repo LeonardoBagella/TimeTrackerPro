@@ -317,16 +317,10 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
                     type="number" 
                     scale="log" 
                     domain={[
-                      1,
-                      Math.max(
-                        ...budgetChartData.map(d => Math.max(d.Budget, d['Costo Attuale']))
-                      )
+                      'auto', 
+                      Math.max(...budgetChartData.map(d => d.Budget)) + 100000
                     ]}
-                    allowDataOverflow={false}
-                    tickFormatter={(value) => {
-                      if (value >= 1000) return `${(value / 1000).toFixed(0)}K€`;
-                      return `${value}€`;
-                    }}
+                    tickFormatter={(value) => `${(value / 1000).toFixed(1)}K€`}
                   />
                   <YAxis dataKey="name" type="category" width={75} />
                   <Tooltip 
