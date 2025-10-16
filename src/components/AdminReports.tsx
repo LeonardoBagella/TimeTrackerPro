@@ -316,7 +316,12 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
                   <XAxis 
                     type="number" 
                     scale="log" 
-                    domain={[1, 'auto']}
+                    domain={[
+                      1,
+                      Math.max(
+                        ...budgetChartData.map(d => Math.max(d.Budget, d['Costo Attuale']))
+                      )
+                    ]}
                     allowDataOverflow={false}
                     tickFormatter={(value) => {
                       if (value >= 1000) return `${(value / 1000).toFixed(0)}K€`;
