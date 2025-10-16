@@ -29,7 +29,7 @@ interface ProjectContextType {
   projects: Project[];
   timeEntries: TimeEntry[];
   addProject: (project: Omit<Project, 'id' | 'totalHours'>) => Promise<void>;
-  addTimeEntry: (entry: Omit<TimeEntry, 'id'>) => Promise<void>;
+  addTimeEntry: (entry: Omit<TimeEntry, 'id'>) => Promise<{ success: boolean; error?: string }>;
   deleteProject: (id: string) => Promise<void>;
   deleteTimeEntry: (id: string) => Promise<void>;
   isLoading: boolean;
@@ -173,9 +173,31 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
   };
 
   const addTimeEntry = async (entryData: Omit<TimeEntry, 'id'>) => {
-    if (!user) return;
+    if (!user) return { success: false, error: 'Utente non autenticato' };
     
     try {
+      // Check total hours for the specific date
+      const { data: existingEntries, error: fetchError } = await (supabase as any)
+        .from('time_entries')
+        .select('hours')
+        .eq('user_id', user.id)
+        .eq('date', entryData.date);
+
+      if (fetchError) {
+        console.error('Error fetching existing entries:', fetchError);
+        return { success: false, error: 'Errore durante il controllo delle ore esistenti' };
+      }
+
+      const currentDayHours = existingEntries?.reduce((sum: number, entry: any) => sum + Number(entry.hours), 0) || 0;
+      const totalHoursAfterAdd = currentDayHours + entryData.hours;
+
+      if (totalHoursAfterAdd > 10) {
+        return { 
+          success: false, 
+          error: `Non puoi registrare più di 10 ore al giorno. Hai già registrato ${currentDayHours} ore per questa data. Puoi aggiungere al massimo ${10 - currentDayHours} ore.` 
+        };
+      }
+
       const { data, error } = await (supabase as any)
         .from('time_entries')
         .insert([
@@ -189,14 +211,17 @@ export const ProjectProvider: React.FC<{ children: React.ReactNode }> = ({ child
 
       if (error) {
         console.error('Error adding time entry:', error);
-        return;
+        return { success: false, error: 'Errore durante il salvataggio delle ore' };
       }
       
       // Refresh all data to update totals
       await fetchProjects();
       await fetchTimeEntries();
+      
+      return { success: true };
     } catch (error) {
       console.error('Error adding time entry:', error);
+      return { success: false, error: 'Errore imprevisto durante il salvataggio delle ore' };
     }
   };
 

@@ -58,7 +58,7 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
     }
   }, [prefilledDate, prefilledProjectId, open, profile]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!projectId) {
@@ -81,12 +81,21 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
 
     const selectedTaskType = taskTypes.find(type => type.value === taskType);
 
-    addTimeEntry({
+    const result = await addTimeEntry({
       project_id: projectId,
       hours: Number(hours),
       description: selectedTaskType?.label || 'Sviluppo',
       date
     });
+
+    if (!result.success) {
+      toast({
+        title: "Errore",
+        description: result.error || "Errore durante la registrazione delle ore",
+        variant: "destructive"
+      });
+      return;
+    }
 
     toast({
       title: "Successo",
