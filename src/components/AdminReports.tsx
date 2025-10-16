@@ -1,18 +1,11 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useUserRole } from '@/hooks/useUserRole';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table';
+import React, { useState, useEffect, useMemo } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useUserRole } from "@/hooks/useUserRole";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import {
   Pagination,
   PaginationContent,
@@ -20,12 +13,12 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@/components/ui/pagination';
-import { FileText, Search, ChevronLeft, Download } from 'lucide-react';
-import { format, subMonths, isAfter } from 'date-fns';
-import { it } from 'date-fns/locale';
-import * as XLSX from 'xlsx';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+} from "@/components/ui/pagination";
+import { FileText, Search, ChevronLeft, Download } from "lucide-react";
+import { format, subMonths, isAfter } from "date-fns";
+import { it } from "date-fns/locale";
+import * as XLSX from "xlsx";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 
 interface TimeEntry {
   id: string;
@@ -70,7 +63,7 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
   const [projects, setProjects] = useState<any[]>([]);
   const [profiles, setProfiles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -84,60 +77,54 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
     try {
       // Calculate date 3 months ago
       const threeMonthsAgo = subMonths(new Date(), 3);
-      const threeMonthsAgoDate = format(threeMonthsAgo, 'yyyy-MM-dd');
+      const threeMonthsAgoDate = format(threeMonthsAgo, "yyyy-MM-dd");
 
       // Fetch time entries from last 3 months for the table
       const { data: entries, error: entriesError } = await supabase
-        .from('time_entries')
-        .select('*')
-        .gte('date', threeMonthsAgoDate)
-        .order('date', { ascending: false });
+        .from("time_entries")
+        .select("*")
+        .gte("date", threeMonthsAgoDate)
+        .order("date", { ascending: false });
 
       if (entriesError) throw entriesError;
 
       // Fetch ALL time entries for cost calculation
-      const { data: allEntries, error: allEntriesError } = await supabase
-        .from('time_entries')
-        .select('*');
+      const { data: allEntries, error: allEntriesError } = await supabase.from("time_entries").select("*");
 
       if (allEntriesError) throw allEntriesError;
 
       // Fetch projects with budget
       const { data: projects, error: projectsError } = await supabase
-        .from('projects')
-        .select('id, name, color, budget');
+        .from("projects")
+        .select("id, name, color, budget");
 
       if (projectsError) throw projectsError;
 
       // Fetch profiles with daily_cost
       const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('user_id, display_name, daily_cost');
+        .from("profiles")
+        .select("user_id, display_name, daily_cost");
 
       if (profilesError) throw profilesError;
 
       // Create lookup maps
-      const projectMap = new Map<string, any>(
-        projects?.map(p => [p.id, p]) || []
-      );
-      const profileMap = new Map<string, any>(
-        profiles?.map(p => [p.user_id, p]) || []
-      );
+      const projectMap = new Map<string, any>(projects?.map((p) => [p.id, p]) || []);
+      const profileMap = new Map<string, any>(profiles?.map((p) => [p.user_id, p]) || []);
 
       // Enrich time entries (last 3 months)
-      const enrichedEntries: EnrichedTimeEntry[] = (entries || []).map(entry => ({
+      const enrichedEntries: EnrichedTimeEntry[] = (entries || []).map((entry) => ({
         ...entry,
-        project_name: projectMap.get(entry.project_id)?.name || 'Progetto sconosciuto',
-        project_color: projectMap.get(entry.project_id)?.color || '#gray',
-        user_name: profileMap.get(entry.user_id)?.display_name || 'Utente sconosciuto',
+        project_name: projectMap.get(entry.project_id)?.name || "Progetto sconosciuto",
+        project_color: projectMap.get(entry.project_id)?.color || "#gray",
+        user_name: profileMap.get(entry.user_id)?.display_name || "Utente sconosciuto",
       }));
 
       // Enrich all time entries for cost calculation
-      const enrichedAllEntries: EnrichedTimeEntry[] = (allEntries || []).map(entry => ({
+      const enrichedAllEntries: EnrichedTimeEntry[] = (allEntries || []).map((entry) => ({
         ...entry,
-        project_name: projectMap.get(entry.project_id)?.name || 'Progetto sconosciuto',
-        project_color: projectMap.get(entry.project_id)?.color || '#gray',
-        user_name: profileMap.get(entry.user_id)?.display_name || 'Utente sconosciuto',
+        project_name: projectMap.get(entry.project_id)?.name || "Progetto sconosciuto",
+        project_color: projectMap.get(entry.project_id)?.color || "#gray",
+        user_name: profileMap.get(entry.user_id)?.display_name || "Utente sconosciuto",
       }));
 
       setTimeEntries(enrichedEntries);
@@ -145,7 +132,7 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
       setProjects(projects || []);
       setProfiles(profiles || []);
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error("Error fetching data:", error);
     } finally {
       setIsLoading(false);
     }
@@ -153,21 +140,19 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
 
   const filteredEntries = useMemo(() => {
     if (!searchTerm) return timeEntries;
-    
+
     const term = searchTerm.toLowerCase();
-    return timeEntries.filter(entry => 
-      entry.project_name.toLowerCase().includes(term) ||
-      entry.user_name.toLowerCase().includes(term) ||
-      entry.description.toLowerCase().includes(term) ||
-      format(new Date(entry.date), 'dd/MM/yyyy').includes(term)
+    return timeEntries.filter(
+      (entry) =>
+        entry.project_name.toLowerCase().includes(term) ||
+        entry.user_name.toLowerCase().includes(term) ||
+        entry.description.toLowerCase().includes(term) ||
+        format(new Date(entry.date), "dd/MM/yyyy").includes(term),
     );
   }, [timeEntries, searchTerm]);
 
   const totalPages = Math.ceil(filteredEntries.length / ITEMS_PER_PAGE);
-  const paginatedEntries = filteredEntries.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const paginatedEntries = filteredEntries.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE);
 
   const totalHours = useMemo(() => {
     return filteredEntries.reduce((sum, entry) => sum + Number(entry.hours), 0);
@@ -175,18 +160,18 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
 
   const budgetChartData = useMemo(() => {
     // Get unique projects from filtered entries
-    const filteredProjectIds = new Set(filteredEntries.map(e => e.project_id));
-    
+    const filteredProjectIds = new Set(filteredEntries.map((e) => e.project_id));
+
     // Create lookup maps
-    const profileMap = new Map(profiles.map(p => [p.user_id, p]));
-    const projectMap = new Map(projects.map(p => [p.id, p]));
-    
+    const profileMap = new Map(profiles.map((p) => [p.user_id, p]));
+    const projectMap = new Map(projects.map((p) => [p.id, p]));
+
     // Calculate actual costs per project using ALL time entries
     const projectCosts = new Map<string, { name: string; budget: number; cost: number }>();
-    
-    allTimeEntries.forEach(entry => {
+
+    allTimeEntries.forEach((entry) => {
       if (!filteredProjectIds.has(entry.project_id)) return;
-      
+
       if (!projectCosts.has(entry.project_id)) {
         const project = projectMap.get(entry.project_id);
         projectCosts.set(entry.project_id, {
@@ -195,51 +180,51 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
           cost: 0,
         });
       }
-      
+
       const projectData = projectCosts.get(entry.project_id)!;
       const profile = profileMap.get(entry.user_id);
       const dailyCost = profile?.daily_cost || 0;
       const days = Number(entry.hours) / 8;
       projectData.cost += days * dailyCost;
     });
-    
+
     return Array.from(projectCosts.values())
-      .filter(p => p.budget > 0) // Only show projects with budget set
-      .map(p => ({
-        name: p.name.length > 10 ? p.name.substring(0, 10) + '...' : p.name,
+      .filter((p) => p.budget > 0) // Only show projects with budget set
+      .map((p) => ({
+        name: p.name.length > 10 ? p.name.substring(0, 10) + "..." : p.name,
         Budget: p.budget,
-        'Costo Attuale': Math.round(p.cost),
+        "Costo Attuale": Math.round(p.cost),
       }));
   }, [filteredEntries, allTimeEntries, projects, profiles]);
 
   const handleExportExcel = () => {
     // Prepare data for export
-    const exportData = filteredEntries.map(entry => ({
-      'Data': format(new Date(entry.date), 'dd/MM/yyyy'),
-      'Progetto': entry.project_name,
-      'Utente': entry.user_name,
-      'Descrizione': entry.description,
-      'Ore': entry.hours,
+    const exportData = filteredEntries.map((entry) => ({
+      Data: format(new Date(entry.date), "dd/MM/yyyy"),
+      Progetto: entry.project_name,
+      Utente: entry.user_name,
+      Descrizione: entry.description,
+      Ore: entry.hours,
     }));
 
     // Create worksheet
     const worksheet = XLSX.utils.json_to_sheet(exportData);
-    
+
     // Set column widths
-    worksheet['!cols'] = [
+    worksheet["!cols"] = [
       { wch: 12 }, // Data
       { wch: 25 }, // Progetto
       { wch: 20 }, // Utente
       { wch: 40 }, // Descrizione
-      { wch: 8 },  // Ore
+      { wch: 8 }, // Ore
     ];
 
     // Create workbook
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, 'Registrazioni');
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Registrazioni");
 
     // Generate filename with current date
-    const fileName = `report_registrazioni_${format(new Date(), 'yyyy-MM-dd')}.xlsx`;
+    const fileName = `report_registrazioni_${format(new Date(), "yyyy-MM-dd")}.xlsx`;
 
     // Save file
     XLSX.writeFile(workbook, fileName);
@@ -307,42 +292,33 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
             </CardHeader>
             <CardContent>
               <ResponsiveContainer width="100%" height={300}>
-                <BarChart
-                  data={budgetChartData}
-                  layout="vertical"
-                  margin={{ top: 5, right: 30, left: 20, bottom: 5 }}
-                >
+                <BarChart data={budgetChartData} layout="vertical" margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis 
-                    type="number" 
-                    scale="log" 
-                    domain={[
-                      'auto', 
-                      Math.max(...budgetChartData.map(d => d.Budget)) + 100000
-                    ]}
+                  <XAxis
+                    type="number"
+                    scale="sqrt"
+                    domain={["auto", Math.max(...budgetChartData.map((d) => d.Budget)) + 100000]}
                     tickFormatter={(value) => `${(value / 1000).toFixed(1)}K€`}
                   />
                   <YAxis dataKey="name" type="category" width={75} />
-                  <Tooltip 
-                    formatter={(value: number) => `${(value / 1000).toFixed(1)}K€`}
-                  />
+                  <Tooltip formatter={(value: number) => `${(value / 1000).toFixed(1)}K€`} />
                   <Legend />
-                  <Bar 
-                    dataKey="Budget" 
+                  <Bar
+                    dataKey="Budget"
                     fill="hsl(var(--primary))"
-                    label={{ position: 'right', formatter: (value: number) => `${(value / 1000).toFixed(1)}K€` }}
+                    label={{ position: "right", formatter: (value: number) => `${(value / 1000).toFixed(1)}K€` }}
                   />
-                  <Bar 
-                    dataKey="Costo Attuale" 
+                  <Bar
+                    dataKey="Costo Attuale"
                     fill="hsl(var(--accent))"
-                    label={{ position: 'right', formatter: (value: number) => `${(value / 1000).toFixed(1)}K€` }}
+                    label={{ position: "right", formatter: (value: number) => `${(value / 1000).toFixed(1)}K€` }}
                   />
                 </BarChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
         )}
-        
+
         <Card>
           <CardHeader>
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -408,21 +384,16 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
                       {paginatedEntries.map((entry) => (
                         <TableRow key={entry.id}>
                           <TableCell className="font-medium">
-                            {format(new Date(entry.date), 'dd MMM yyyy', { locale: it })}
+                            {format(new Date(entry.date), "dd MMM yyyy", { locale: it })}
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center space-x-2">
-                              <div
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: entry.project_color }}
-                              />
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: entry.project_color }} />
                               <span>{entry.project_name}</span>
                             </div>
                           </TableCell>
                           <TableCell>{entry.user_name}</TableCell>
-                          <TableCell className="max-w-xs truncate">
-                            {entry.description}
-                          </TableCell>
+                          <TableCell className="max-w-xs truncate">{entry.description}</TableCell>
                           <TableCell className="text-right">
                             <Badge variant="secondary" className="bg-accent/20 text-accent-foreground">
                               {entry.hours}h
@@ -440,13 +411,13 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
                       <PaginationContent>
                         <PaginationItem>
                           <PaginationPrevious
-                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                            className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                            className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
-                        
+
                         {Array.from({ length: totalPages }, (_, i) => i + 1)
-                          .filter(page => {
+                          .filter((page) => {
                             if (totalPages <= 7) return true;
                             if (page === 1 || page === totalPages) return true;
                             if (page >= currentPage - 1 && page <= currentPage + 1) return true;
@@ -486,8 +457,8 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
 
                         <PaginationItem>
                           <PaginationNext
-                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                            className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+                            className={currentPage === totalPages ? "pointer-events-none opacity-50" : "cursor-pointer"}
                           />
                         </PaginationItem>
                       </PaginationContent>
