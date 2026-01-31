@@ -160,15 +160,19 @@ const AddTimeDialog: React.FC<AddTimeDialogProps> = ({ open, onOpenChange, prefi
               <Slider
                 value={[Number(hours)]}
                 onValueChange={(value) => setHours(value[0].toString())}
-                min={2}
+                min={1}
                 max={8}
-                step={2}
+                step={1}
                 className="w-full"
               />
               <div className="flex justify-between text-xs text-muted-foreground mt-1">
+                <span>1h</span>
                 <span>2h</span>
+                <span>3h</span>
                 <span>4h</span>
+                <span>5h</span>
                 <span>6h</span>
+                <span>7h</span>
                 <span>8h</span>
               </div>
             </div>
