@@ -14,11 +14,19 @@ export const calculateMissedEntries = (timeEntries: TimeEntry[]): MissedEntry[] 
   const workingDays: string[] = [];
   const currentDate = new Date(oneMonthAgo);
   
+  // Helper to format date as YYYY-MM-DD in local timezone
+  const formatLocalDate = (date: Date): string => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
+  
   while (currentDate <= now) {
     const dayOfWeek = currentDate.getDay();
-    // 1 = Monday, 2 = Tuesday, ..., 5 = Friday
+    // 0 = Sunday, 1 = Monday, ..., 5 = Friday, 6 = Saturday
     if (dayOfWeek >= 1 && dayOfWeek <= 5) {
-      workingDays.push(currentDate.toISOString().split('T')[0]);
+      workingDays.push(formatLocalDate(currentDate));
     }
     currentDate.setDate(currentDate.getDate() + 1);
   }
