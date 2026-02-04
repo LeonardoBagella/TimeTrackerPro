@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -58,6 +59,7 @@ const ITEMS_PER_PAGE = 20;
 
 const AdminReports = ({ onBack }: { onBack: () => void }) => {
   const { isAdmin, isLoading: roleLoading } = useUserRole();
+  const { user } = useAuth();
   const [timeEntries, setTimeEntries] = useState<EnrichedTimeEntry[]>([]);
   const [allTimeEntries, setAllTimeEntries] = useState<EnrichedTimeEntry[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
@@ -65,51 +67,77 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [adminOrgId, setAdminOrgId] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!roleLoading && isAdmin) {
-      fetchAllData();
+    const fetchAdminOrg = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("organization_id")
+        .eq("user_id", user.id)
+        .single();
+      if (data?.organization_id) {
+        setAdminOrgId(data.organization_id);
+      }
+    };
+    if (!roleLoading && isAdmin && user) {
+      fetchAdminOrg();
     }
-  }, [roleLoading, isAdmin]);
+  }, [roleLoading, isAdmin, user]);
 
-  const fetchAllData = async () => {
+  useEffect(() => {
+    if (adminOrgId) {
+      fetchAllData(adminOrgId);
+    }
+  }, [adminOrgId]);
+
+  const fetchAllData = async (organizationId: string) => {
     setIsLoading(true);
     try {
       // Calculate date 3 months ago
       const threeMonthsAgo = subMonths(new Date(), 3);
       const threeMonthsAgoDate = format(threeMonthsAgo, "yyyy-MM-dd");
 
-      // Fetch time entries from last 3 months for the table
+      // Fetch projects belonging to admin's organization
+      const { data: orgProjects, error: projectsError } = await supabase
+        .from("projects")
+        .select("id, name, color, budget")
+        .eq("organization_id", organizationId);
+
+      if (projectsError) throw projectsError;
+
+      const projectIds = orgProjects?.map((p) => p.id) || [];
+
+      // Fetch profiles in admin's organization
+      const { data: orgProfiles, error: profilesError } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, daily_cost")
+        .eq("organization_id", organizationId);
+
+      if (profilesError) throw profilesError;
+
+      // Fetch time entries from last 3 months for projects in org
       const { data: entries, error: entriesError } = await supabase
         .from("time_entries")
         .select("*")
+        .in("project_id", projectIds)
         .gte("date", threeMonthsAgoDate)
         .order("date", { ascending: false });
 
       if (entriesError) throw entriesError;
 
-      // Fetch ALL time entries for cost calculation
-      const { data: allEntries, error: allEntriesError } = await supabase.from("time_entries").select("*");
+      // Fetch ALL time entries for cost calculation (only org projects)
+      const { data: allEntries, error: allEntriesError } = await supabase
+        .from("time_entries")
+        .select("*")
+        .in("project_id", projectIds);
 
       if (allEntriesError) throw allEntriesError;
 
-      // Fetch projects with budget
-      const { data: projects, error: projectsError } = await supabase
-        .from("projects")
-        .select("id, name, color, budget");
-
-      if (projectsError) throw projectsError;
-
-      // Fetch profiles with daily_cost
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("user_id, display_name, daily_cost");
-
-      if (profilesError) throw profilesError;
-
       // Create lookup maps
-      const projectMap = new Map<string, any>(projects?.map((p) => [p.id, p]) || []);
-      const profileMap = new Map<string, any>(profiles?.map((p) => [p.user_id, p]) || []);
+      const projectMap = new Map<string, any>(orgProjects?.map((p) => [p.id, p]) || []);
+      const profileMap = new Map<string, any>(orgProfiles?.map((p) => [p.user_id, p]) || []);
 
       // Enrich time entries (last 3 months)
       const enrichedEntries: EnrichedTimeEntry[] = (entries || []).map((entry) => ({
@@ -129,8 +157,8 @@ const AdminReports = ({ onBack }: { onBack: () => void }) => {
 
       setTimeEntries(enrichedEntries);
       setAllTimeEntries(enrichedAllEntries);
-      setProjects(projects || []);
-      setProfiles(profiles || []);
+      setProjects(orgProjects || []);
+      setProfiles(orgProfiles || []);
     } catch (error) {
       console.error("Error fetching data:", error);
     } finally {
