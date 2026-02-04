@@ -1,16 +1,18 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useProjects } from "@/context/ProjectContext";
 import { useUserRole } from "@/hooks/useUserRole";
+import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { LogOut, Plus, Clock, Trash2, Calendar, AlertTriangle, TrendingUp, FileText } from "lucide-react";
+import { LogOut, Plus, Clock, Trash2, Calendar, AlertTriangle, TrendingUp, FileText, Settings } from "lucide-react";
 import AddProjectDialog from "./AddProjectDialog";
 import AddTimeDialog from "./AddTimeDialog";
 import AdminReports from "./AdminReports";
+import ProfileSettingsDialog from "./ProfileSettingsDialog";
 import { calculateMissedEntries } from "@/utils/timeCalculations";
 import {
   startOfMonth,
@@ -33,6 +35,23 @@ const Dashboard = () => {
   const [prefilledProjectId, setPrefilledProjectId] = useState<string | undefined>(undefined);
   const [showPreviousMonth, setShowPreviousMonth] = useState(false);
   const [showAdminReports, setShowAdminReports] = useState(false);
+  const [showProfileSettings, setShowProfileSettings] = useState(false);
+  const [displayName, setDisplayName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchDisplayName = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("display_name")
+        .eq("user_id", user.id)
+        .single();
+      if (data?.display_name) {
+        setDisplayName(data.display_name);
+      }
+    };
+    fetchDisplayName();
+  }, [user]);
 
   // Filter time entries for current month
   const currentMonthStart = startOfMonth(new Date());
@@ -156,12 +175,22 @@ const Dashboard = () => {
             </div>
 
             <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">Benvenuto, {user?.email?.split("@")[0]}</span>
+              <span className="text-sm text-muted-foreground">
+                Benvenuto, {displayName || user?.email?.split("@")[0]}
+              </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowProfileSettings(true)}
+                className="text-muted-foreground hover:text-foreground"
+              >
+                <Settings className="w-4 h-4" />
+              </Button>
               <Button
                 variant="outline"
                 size="sm"
                 onClick={signOut}
-                className="hover:bg-red-50 hover:border-red-200 hover:text-red-600"
+                className="hover:bg-destructive/10 hover:border-destructive/20 hover:text-destructive"
               >
                 <LogOut className="w-4 h-4 mr-2" />
                 Esci
@@ -445,6 +474,24 @@ const Dashboard = () => {
         }}
         prefilledDate={prefilledDate}
         prefilledProjectId={prefilledProjectId}
+      />
+
+      <ProfileSettingsDialog
+        open={showProfileSettings}
+        onOpenChange={(open) => {
+          setShowProfileSettings(open);
+          if (!open) {
+            // Refresh display name when dialog closes
+            supabase
+              .from("profiles")
+              .select("display_name")
+              .eq("user_id", user?.id)
+              .single()
+              .then(({ data }) => {
+                if (data?.display_name) setDisplayName(data.display_name);
+              });
+          }
+        }}
       />
     </div>
   );
